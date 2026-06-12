@@ -6,6 +6,7 @@ buildscript {
   }
   dependencies {
     classpath "org.docstr.gwt:org.docstr.gwt.gradle.plugin:$gwtPluginVersion"
+
   }
 }
 apply plugin: "org.docstr.gwt"
@@ -21,48 +22,54 @@ gwt {
   maxHeapSize = '1G' // Default 256m is not enough for the GWT compiler. GWT is HUNGRY.
   minHeapSize = '1G'
 
-  extraSourceDirs = files(
-    file('src/main/java'),
-    project(":core").file('src/main/java'),
-    files(sourceSets.main.allJava.srcDirs),
-    files("../core/build/generated/sources/annotationProcessor/java/main"),
-    files(sourceSets.main.output.resourcesDir)
-  )
-  modules = ['no.sandramoen.libgdx37.GdxDefinition']
+  modules = ["no.sandramoen.libgdx37.GdxDefinition"]
 
+  //// This affects where the final resulting build will be placed.
   war = file(outputPath)
+  //// You
   compiler.optimize = 9
   compiler.strict = true
   //// The next line can be useful to uncomment if you want output that hasn't been obfuscated.
 //  compiler.style = "DETAILED"
 
   sourceLevel = '1.11'
+
   devMode {
     port = 8080
     startupUrl = "http://127.0.0.1:8080/index.html"
   }
   superDev {
-    modules = ['no.sandramoen.libgdx37.GdxDefinitionSuperdev']
+    modules = ["no.sandramoen.libgdx37.GdxDefinitionSuperdev"]
   }
 }
 
+gwt.extraSourceDirs.from(
+  file('src/main/java'),
+  files(project(":core").file('src/main/java')),
+  files(project(':core').sourceSets.main.allJava.srcDirs),
+  files("../core/build/generated/sources/annotationProcessor/java/main"),
+  files(sourceSets.main.output.resourcesDir)
+
+)
+
+
 dependencies {
-  implementation "com.github.libgdx:box2dlights:$box2dlightsVersion:sources" // latest build from JitPack
-//  implementation "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion:sources" // broken on HTML
+  implementation "com.github.libgdx:box2dlights:$box2dlightsVersion:sources"
   implementation "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion:sources"
   implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion:sources"
   implementation "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-  implementation "com.google.jsinterop:jsinterop-annotations:2.1.0:sources"
   implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources"
   implementation "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
-//  implementation "com.github.tommyettinger:libgdx-utils:$utilsVersion:sources" // Maven Central releases
-  implementation "com.github.tommyettinger.gdx-utils:libgdx-utils:$utilsVersion:sources" // JitPack commits
   implementation "com.github.tommyettinger:regexodus:$regExodusVersion:sources"
   implementation "com.github.tommyettinger:textratypist:$textratypistVersion:sources"
+  implementation "com.github.tommyettinger.gdx-utils:libgdx-utils:$utilsVersion:sources" // JitPack commits
+
+  implementation "com.google.jsinterop:jsinterop-annotations:2.1.0:sources"
   implementation project(':core')
   implementation("com.badlogicgames.gdx-controllers:gdx-controllers-gwt:$gdxControllersVersion:sources"){exclude group: "com.badlogicgames.gdx", module: "gdx-backend-gwt"}
   implementation("com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources") {exclude group: "com.google.gwt", module: "gwt-user"}
+
   constraints {
     implementation "jakarta.servlet:jakarta.servlet-api:6.1.0"
   }
@@ -70,16 +77,17 @@ dependencies {
 
 //// We delete the (temporary) war/ folder because if any extra files get into it, problems occur.
 //// The war/ folder shouldn't be committed to version control.
-clean.delete += [file("war"), file(outputPath)]
+clean.delete += [file("war")]
 
 //// The compileJava task is run at the start of any GWT build; we need to clean the output directory BEFORE
 //// anything can be built into that output directory, so the rest of the build can use it.
-tasks.named("compileJava"){
-  dependsOn("clean")
-}
+tasks.named("compileJava").get().dependsOn("clean")
+
 
 //// You should always use the dist task (which could be folded into the "other" group), not the build task.
 tasks.register('dist') {
+  //// This can't depend on the "clean" task because that would remove things it needs.
+  //// You may want to run "gradlew html:clean" before builds if you encounter leftovers from previous runs.
   dependsOn(["build"])
   doLast {
     // Uncomment the next line if you have changed outputPath and know that its contents
@@ -138,6 +146,10 @@ tasks.register("distZip", Zip) {
 tasks.register('superDev') {
   dependsOn("dist", "gwtDevMode")
   group("gwt")
+}
+
+processResources {
+  inputs.files(project(':core').tasks.named('packTextures').get().outputs.files)
 }
 
 tasks.compileJava.dependsOn("processResources")

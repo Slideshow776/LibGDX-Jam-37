@@ -6,15 +6,32 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.badlogicgames.gdx:gdx-tools:1.12.1"
+    classpath "com.badlogicgames.gdx:gdx-tools:1.14.2"
   }
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 eclipse.project.name = appName + '-core'
 
-sourceSets.main {
-  resources.srcDir("$rootDir/assets")
+dependencies {
+  api "com.github.libgdx:box2dlights:$box2dlightsVersion"
+  api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
+  api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+  api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  api "com.github.tommyettinger:libgdx-texturepacker:$texturePackerOnlyVersion"
+  api "com.github.tommyettinger:regexodus:$regExodusVersion"
+  api "com.github.tommyettinger:textratypist:$textratypistVersion"
+
+  api "com.github.tommyettinger.gdx-utils:libgdx-utils:$utilsVersion" // JitPack commits
+
+  if(enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+}
+
+jar {
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 var packTextures = tasks.register("packTextures") {
@@ -29,32 +46,5 @@ var packTextures = tasks.register("packTextures") {
     settings.maxHeight = 4096
     settings.combineSubdirectories = true
     TexturePacker.process(settings, inputDir, outputDir, "images.pack")
-  }
-}
-
-tasks {
-  processResources {
-    dependsOn(packTextures)
-  }
-  compileJava {
-    options.encoding = "UTF-8"
-  }
-}
-dependencies {
-  api "com.github.libgdx:box2dlights:$box2dlightsVersion"
-//  api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
-  api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
-  api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-  api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
-  api "com.badlogicgames.gdx:gdx:$gdxVersion"
-  api "com.github.tommyettinger:libgdx-texturepacker:$texturePackerOnlyVersion"
-  api "com.github.tommyettinger:libgdx-textureunpacker:$textureUnpackerOnlyVersion"
-//  api "com.github.tommyettinger:libgdx-utils:$utilsVersion" // Maven Central releases
-  api "com.github.tommyettinger.gdx-utils:libgdx-utils:$utilsVersion" // JitPack commits
-  api "com.github.tommyettinger:regexodus:$regExodusVersion"
-  api "com.github.tommyettinger:textratypist:$textratypistVersion"
-
-  if(enableGraalNative == 'true') {
-    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }

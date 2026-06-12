@@ -2,70 +2,47 @@ package no.sandramoen.libgdx37.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-
-import java.awt.Dimension;
-import java.util.Locale;
-
 import no.sandramoen.libgdx37.MyGdxGame;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
-        if (no.sandramoen.libgdx37.lwjgl3.StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
+        if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         createApplication();
     }
-
 
     private static Lwjgl3Application createApplication() {
         return new Lwjgl3Application(new MyGdxGame(), getDefaultConfiguration());
     }
 
-
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("libGDX jam #37");
+        configuration.setTitle("LibGDX-Jam-37");
         //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
         //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.
-        configuration.useVsync(false);
+        configuration.useVsync(true);
         //// Limits FPS to the refresh rate of the currently active monitor, plus 1 to try to match fractional
         //// refresh rates. The Vsync setting above should limit the actual FPS to match the monitor.
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
         //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
-        //configuration.setWindowedMode(640, 480);
-        //// You can change these files; they are in lwjgl3/src/main/resources/.
 
-        configuration.setForegroundFPS(0);
-        configuration.useVsync(false);
-        configuration.setWindowIcon("images/excluded/icon_16x16.png", "images/excluded/icon_32x32.png", "images/excluded/icon_64x64.png");
+        configuration.setWindowedMode(640, 480);
+        //// You can change these files; they are in lwjgl3/src/main/resources/ .
+        //// They can also be loaded from the root of assets/ .
+        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
 
-        boolean isFullscreen = false;
-        if (isFullscreen) {
-            configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
-        } else {
-            //setWindowedMode(.6f, configuration);
-            configuration.setWindowedMode(930, 930);
-        }
+        //// This could improve compatibility with Windows machines with buggy OpenGL drivers, Macs
+        //// with Apple Silicon that have to emulate compatibility with OpenGL anyway, and more.
+        //// This uses the dependency `com.badlogicgames.gdx:gdx-lwjgl3-angle` to function.
+        //// You would need to add this line to lwjgl3/build.gradle , below the dependency on `gdx-backend-lwjgl3`:
+        ////     implementation "com.badlogicgames.gdx:gdx-lwjgl3-angle:$gdxVersion"
+        //// You can choose to add the following line and the mentioned dependency if you want; they
+        //// are not intended for games that use GL30 (which is compatibility with OpenGL ES 3.0).
+        //// Know that it might not work well in some cases.
+//        configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20, 0, 0);
+
         return configuration;
-    }
-
-
-    private static String getCountryCode() {
-        String countryCode = Locale.getDefault().getCountry().toLowerCase(Locale.ROOT);
-        System.out.println("[DesktopLauncher] Locale => Country code: " + countryCode);
-        return countryCode;
-    }
-
-
-    private static void setWindowedMode(float percentOfScreenSize, Lwjgl3ApplicationConfiguration config) {
-        Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (dimension.width * percentOfScreenSize);
-
-        float aspectRatio = 16 / 9f;
-        int height = (int) (width / aspectRatio);
-
-        System.out.println("[DesktopLauncher] Window dimensions => width: " + width + ", height: " + height);
-        config.setWindowedMode(width, height);
     }
 }

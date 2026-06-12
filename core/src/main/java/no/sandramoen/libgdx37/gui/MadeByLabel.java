@@ -16,7 +16,7 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 public class MadeByLabel extends TypingLabel {
 
     public MadeByLabel() {
-        super("Made by Sandra Moen 2026", new Styles.LabelStyle(AssetLoader.mySkin.get("Play-Bold20white", BitmapFont.class), null));
+        super("Made by Sandra Moen 2024", new Styles.LabelStyle(AssetLoader.mySkin.get("Play-Bold20white", BitmapFont.class), null));
         setAlignment(Align.center);
         setColor(Color.GRAY);
         addClickListener();

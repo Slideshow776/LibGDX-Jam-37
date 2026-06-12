@@ -73,7 +73,7 @@ public class Player extends BaseActor {
             //
             if (!is_touch) {
                 is_touch = true;
-                //AssetLoader.dogSounds.get(MathUtils.random(0, AssetLoader.dogSounds.size - 1)).play(BaseGame.soundVolume);
+                AssetLoader.dogSounds.get(MathUtils.random(0, AssetLoader.dogSounds.size - 1)).play(BaseGame.soundVolume);
             }
         }
     }

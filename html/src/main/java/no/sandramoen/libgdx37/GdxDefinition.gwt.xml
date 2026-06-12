@@ -4,6 +4,10 @@
   <!-- Paths to source are relative to this file and separated by slashes ('/'). -->
   <source path="" />
 
+  <!-- Any resources placed under package public_html, relative to this file, will be copied verbatim into the final webapp folder. -->
+  <!-- This is where you can place your JavaScript, CSS and other resources for advanced JS integration. -->
+  <public path="public_html" />
+
   <!-- "Inherits" lines are how GWT knows where to look for code and configuration in other projects or libraries. -->
   <inherits name="com.badlogic.gdx.backends.gdx_backends_gwt" />
   <inherits name="Box2DLights" />
@@ -12,12 +16,11 @@
   <inherits name="com.badlogic.gdx.controllers.controllers-gwt" />
   <inherits name="com.badlogic.gdx.physics.box2d.box2d-gwt" />
   <inherits name="com.github.tommyettinger.textratypist" />
-  <inherits name="libgdx-utils" />
-  <inherits name="libgdx37.MyGdxGame" />
+  <inherits name="no.sandramoen.libgdx37.MyGdxGame" />
   <inherits name="regexodus.regexodus" />
 
   <!-- You must change this if you rename packages later, or rename GwtLauncher. -->
-  <entry-point class="libgdx37.gwt.GwtLauncher" />
+  <entry-point class="no.sandramoen.libgdx37.gwt.GwtLauncher" />
 
   <!-- Reflection includes may be needed for your code or library code. Each value is separated by periods ('.'). -->
   <!-- You can include a full package by not including the name of a type at the end. -->

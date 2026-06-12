@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.Array;
 
 public class GameUtils {
 
-
     public static void saveGameState() {
         no.sandramoen.libgdx37.utils.BaseGame.preferences.putBoolean("loadPersonalParameters", true);
         no.sandramoen.libgdx37.utils.BaseGame.preferences.putFloat("musicVolume", no.sandramoen.libgdx37.utils.BaseGame.musicVolume);
@@ -25,7 +24,6 @@ public class GameUtils {
         no.sandramoen.libgdx37.utils.BaseGame.preferences.flush();
     }
 
-
     public static void loadGameState() {
         no.sandramoen.libgdx37.utils.BaseGame.preferences = Gdx.app.getPreferences("GGJ2023GameState");
         no.sandramoen.libgdx37.utils.BaseGame.loadPersonalParameters = no.sandramoen.libgdx37.utils.BaseGame.preferences.getBoolean("loadPersonalParameters");
@@ -33,7 +31,6 @@ public class GameUtils {
         no.sandramoen.libgdx37.utils.BaseGame.soundVolume = no.sandramoen.libgdx37.utils.BaseGame.preferences.getFloat("soundVolume");
         no.sandramoen.libgdx37.utils.BaseGame.voiceVolume = no.sandramoen.libgdx37.utils.BaseGame.preferences.getFloat("voiceVolume");
     }
-
 
     public static void setWidgetHoverColor(final Widget widget) {
         widget.addListener(new ClickListener() {
@@ -52,20 +49,17 @@ public class GameUtils {
         });
     }
 
-
     public static void playLoopingMusic(Music music) {
         music.setVolume(no.sandramoen.libgdx37.utils.BaseGame.musicVolume);
         music.setLooping(true);
         music.play();
     }
 
-
     public static void playLoopingMusic(Music music, float volume) {
         music.setVolume(volume);
         music.setLooping(true);
         music.play();
     }
-
 
     public static void setMusicVolume(float volume) {
         if (volume > 1f || volume < 0f)
@@ -74,18 +68,15 @@ public class GameUtils {
         setAllMusicVolumes(volume);
     }
 
-
     private static void setAllMusicVolumes(float volume) {
         for (Music music : no.sandramoen.libgdx37.utils.AssetLoader.music)
             music.setVolume(volume);
     }
 
-
     public static void stopAllMusic() {
         for (Music music : no.sandramoen.libgdx37.utils.AssetLoader.music)
             music.stop();
     }
-
 
     public static void addWidgetEnterExitEffect(Widget widget, Color enterColor, Color exitColor) {
         widget.addListener(new ClickListener() {
@@ -110,11 +101,9 @@ public class GameUtils {
         return (value - min) / (max - min);
     }
 
-
     public static boolean isTouchDownEvent(Event event) {
         return event instanceof InputEvent && ((InputEvent) event).getType() == InputEvent.Type.touchDown;
     }
-
 
     public static ShaderProgram initShaderProgram(String vertexShader, String fragmentShader) {
         ShaderProgram.pedantic = false;
@@ -123,7 +112,6 @@ public class GameUtils {
             logError("Error: Couldn't compile shader => " + shaderProgram.getLog());
         return shaderProgram;
     }
-
 
     public static Color randomLightColor() {
         float r = 0f;
@@ -138,7 +126,6 @@ public class GameUtils {
         return new Color(r, g, b, 1);
     }
 
-
     public static Object getNextItemOfLoopingArray(Array array, int index) {
         if (index >= array.size)
             return array.get(index % array.size);
@@ -148,22 +135,18 @@ public class GameUtils {
             return array.get(index);
     }
 
-
     public static void printLoadingTime(String tag, String message, long startTime) {
         long endTime = System.currentTimeMillis();
         Gdx.app.log(tag, message + " took " + (endTime - startTime) + " ms to load.");
     }
 
-
     public static boolean isDistanceBigEnough(Vector2 k1, Vector2 k2, float distance) {
         return distanceBetween(k1, k2) >= distance;
     }
 
-
     public static boolean isWithinDistance(Vector2 k1, Vector2 k2, float distance) {
         return distanceBetween(k1, k2) <= distance;
     }
-
 
     public static float distanceBetween(Vector2 k1, Vector2 k2) {
         return (float) Math.sqrt(Math.pow(Math.abs(k2.x - k1.x), 2) + Math.pow(Math.abs(k2.y - k1.y), 2));

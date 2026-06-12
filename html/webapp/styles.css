@@ -1,25 +1,11 @@
 canvas {
     cursor: default;
     outline: none;
-    border: 0px;
-    margin: 0px;
 }
 
 body {
-    background-color: #1D2C14;
-    border: 0px;
+    background-color: #222222;
     margin: 0px;
-    overflow: hidden;
-}
-
-div {
-    border: 0px;
-    margin: 0px;
-    border-image-width: 0px;
-}
-
-table {
-    border-spacing: 0px;
 }
 
 p {

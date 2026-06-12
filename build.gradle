@@ -4,6 +4,7 @@ buildscript {
     gradlePluginPortal()
     mavenLocal()
     google()
+    maven { url = 'https://central.sonatype.com/repository/maven-snapshots/' }
   }
   dependencies {
 
@@ -18,17 +19,15 @@ allprojects {
   // This allows you to "Build and run using IntelliJ IDEA", an option in IDEA's Settings.
   idea {
     module {
-      outputDir file('build/classes/java/main')
-      testOutputDir file('build/classes/java/test')
+      outputDir = file('build/classes/java/main')
+      testOutputDir = file('build/classes/java/test')
     }
   }
 }
 
-idea.module.excludeDirs += [file("docs/")]
-
 configure(subprojects) {
   apply plugin: 'java-library'
-  java.sourceCompatibility = 8
+  java.sourceCompatibility = 11
 
   // From https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
   // The article can be helpful when using assets.txt in your project.
@@ -57,7 +56,7 @@ configure(subprojects) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'libgdx37'
+  ext.appName = 'LibGDX-Jam-37'
   repositories {
     mavenCentral()
     // You may want to remove the following line if you have errors downloading dependencies.
@@ -68,4 +67,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'libgdx37' + '-parent'
+eclipse.project.name = 'LibGDX-Jam-37' + '-parent'
