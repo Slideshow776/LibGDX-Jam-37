@@ -68,17 +68,13 @@ public class AssetLoader implements AssetErrorListener {
         no.sandramoen.libgdx37.utils.BaseGame.assetManager.load("images/included/packed/images.pack.atlas", TextureAtlas.class);
 
         // music
-        BaseGame.assetManager.load("audio/music/697045__gadesound__ambgras-tascamx8_meadow_kl_gades_tascamx8-0001.wav", Music.class);
+        /*BaseGame.assetManager.load("audio/music/697045__gadesound__ambgras-tascamx8_meadow_kl_gades_tascamx8-0001.wav", Music.class);
         BaseGame.assetManager.load("audio/music/herdAmbiance.wav", Music.class);
-        BaseGame.assetManager.load("audio/music/106570__robinhood76__02224-scottish-pipes-march.mp3", Music.class);
+        BaseGame.assetManager.load("audio/music/106570__robinhood76__02224-scottish-pipes-march.mp3", Music.class);*/
 
         // sounds
-        BaseGame.assetManager.load("audio/sounds/532886__bricklover__water-splash-3.mp3", Sound.class);
-        BaseGame.assetManager.load("audio/sounds/Pickup_Coin54.wav", Sound.class);
-        for (int i = 0; i <= 8; i++)
-            BaseGame.assetManager.load("audio/sounds/dog/" + i + ".wav", Sound.class);
-        for (int i = 0; i <= 4; i++)
-            BaseGame.assetManager.load("audio/sounds/sheep/" + i + ".wav", Sound.class);
+        /*for (int i = 0; i <= 4; i++)
+            BaseGame.assetManager.load("audio/sounds/sheep/" + i + ".wav", Sound.class);*/
 
         // i18n
 
@@ -107,19 +103,11 @@ public class AssetLoader implements AssetErrorListener {
         music = new Array();
         //levelMusic = BaseGame.assetManager.get("audio/music/744138__thelastoneonearth__epic-middle-east-theme.ogg", Music.class);
         //music.add(levelMusic);
-        ambianceMusic = BaseGame.assetManager.get("audio/music/697045__gadesound__ambgras-tascamx8_meadow_kl_gades_tascamx8-0001.wav", Music.class);
-        herdMusic = BaseGame.assetManager.get("audio/music/herdAmbiance.wav", Music.class);
-        levelMusic = BaseGame.assetManager.get("audio/music/106570__robinhood76__02224-scottish-pipes-march.mp3", Music.class);
+        //levelMusic = BaseGame.assetManager.get("audio/music/106570__robinhood76__02224-scottish-pipes-march.mp3", Music.class);
 
         // sounds
-        waterSound = BaseGame.assetManager.get("audio/sounds/532886__bricklover__water-splash-3.mp3", Sound.class);
-        coinSound = BaseGame.assetManager.get("audio/sounds/Pickup_Coin54.wav", Sound.class);
-        dogSounds = new Array<Sound>();
-        for (int i = 0; i <= 8; i++)
-            dogSounds.add(BaseGame.assetManager.get("audio/sounds/dog/" + i + ".wav", Sound.class));
-        sheepSounds = new Array<Sound>();
-        for (int i = 0; i <= 4; i++)
-            sheepSounds.add(BaseGame.assetManager.get("audio/sounds/sheep/" + i + ".wav", Sound.class));
+        /*for (int i = 0; i <= 4; i++)
+            sheepSounds.add(BaseGame.assetManager.get("audio/sounds/sheep/" + i + ".wav", Sound.class));*/
 
         // i18n
 
@@ -144,9 +132,9 @@ public class AssetLoader implements AssetErrorListener {
         float scale = Gdx.graphics.getWidth() * .05f; // magic number ensures scale ~= 1, based on screen width
         scale *= 1.01f; // make x percent bigger, bigger = more fuzzy
 
-        mySkin.get("IrishGrover_20", Font.class).scale(scale);
-        mySkin.get("IrishGrover_40", Font.class).scale(scale);
-        mySkin.get("IrishGrover_59", Font.class).scale(scale);
+        mySkin.get("Play-Bold20white", Font.class).scale(scale);
+        mySkin.get("Play-Bold40white", Font.class).scale(scale);
+        mySkin.get("Play-Bold59white", Font.class).scale(scale);
     }
 
     private static void loadTiledMap() {
