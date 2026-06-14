@@ -3,6 +3,7 @@ package no.sandramoen.libgdx37.screens.gameplay;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.utils.Align;
 import com.github.tommyettinger.textra.TextraLabel;
 
 import no.sandramoen.libgdx37.actors.Background;
+import no.sandramoen.libgdx37.actors.Ball;
+import no.sandramoen.libgdx37.actors.PlayArea;
 import no.sandramoen.libgdx37.actors.particles.EffectBurst;
 import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
@@ -19,6 +22,7 @@ public class LevelScreen extends BaseScreen {
 
     private BaseActor overlay;
     private Background background;
+    private PlayArea playArea;
 
     private boolean is_game_over = false;
     private int score = 0;
@@ -39,6 +43,18 @@ public class LevelScreen extends BaseScreen {
 
         // actors
         background = new Background(mainStage);
+        playArea = new PlayArea(mainStage);
+
+        // todo add ball
+        for (int i = 0; i < 4; i++) {
+            Ball ball = new Ball(mainStage);
+            playArea.addActor(ball);
+            ball.setWorldBounds(playArea.getWidth(), playArea.getHeight());
+            ball.setPosition(
+                MathUtils.random(0f, playArea.getWidth()),
+                MathUtils.random(0f, playArea.getHeight())
+            );
+        }
     }
 
 
