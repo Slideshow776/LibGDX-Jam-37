@@ -25,7 +25,7 @@ public class Ball extends BaseActor {
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
-        setDebug(true);
+        //setDebug(true);
 
         // movement
         setAcceleration(movementAcceleration);

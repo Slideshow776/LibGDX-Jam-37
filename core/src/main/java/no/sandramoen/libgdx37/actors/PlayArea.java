@@ -25,7 +25,7 @@ public class PlayArea extends BaseActor {
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
-        setDebug(true);
+        //setDebug(true);
 
         balls = new Array<Ball>();
     }
@@ -53,7 +53,7 @@ public class PlayArea extends BaseActor {
 
         balls.add(ball);
         addActor(ball);
-        ball.setWorldBounds(getWidth(), getHeight());
+        ball.setWorldBounds(this);
     }
 
 
