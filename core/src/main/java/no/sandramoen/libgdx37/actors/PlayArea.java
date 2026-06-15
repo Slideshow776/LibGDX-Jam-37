@@ -34,15 +34,15 @@ public class PlayArea extends BaseActor {
         addAction(Actions.sequence(
             Actions.delay(MathUtils.random(0f, 0.25f)),
             Actions.scaleTo(1.05f, 1.05f, duration * 0.5f, Interpolation.circleOut),
-            Actions.scaleTo(1f, 1f, duration, Interpolation.bounceOut),
-            Actions.run(() -> {
+            Actions.scaleTo(1f, 1f, duration, Interpolation.bounceOut)//,
+            /*Actions.run(() -> {
                 // heart rate animation
                 addAction(Actions.forever(Actions.sequence(
                     Actions.scaleTo(1.005f, 1.005f, 0.2f, Interpolation.exp10Out),
                     Actions.scaleTo(1f, 1f, 0.8f, Interpolation.bounceOut),
                     Actions.delay(0.4f)
                 )));
-            })
+            })*/
         ));
     }
 
@@ -51,8 +51,25 @@ public class PlayArea extends BaseActor {
     public void act(float delta) {
         super.act(delta);
 
-        if (balls.isEmpty()) {
+        if (balls.isEmpty())
             remove_empty();
+
+        for (Ball ball : balls) {
+            if (ball.is_bounced_horizontal) {
+                float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
+                addAction(Actions.sequence(
+                    Actions.scaleBy(amount * 1.1f, amount * 0.9f, 0.1f),
+                    Actions.scaleBy(-amount * 1.1f, -amount * 0.9f, 0.1f)
+                ));
+                ball.is_bounced_horizontal = false;
+            } else if (ball.is_bounced_vertical) {
+                float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
+                addAction(Actions.sequence(
+                    Actions.scaleBy(amount * 0.9f, amount * 1.1f, 0.1f),
+                    Actions.scaleBy(-amount * 0.9f, -amount * 1.1f, 0.1f)
+                ));
+                ball.is_bounced_vertical = false;
+            }
         }
     }
 

@@ -13,6 +13,9 @@ import no.sandramoen.libgdx37.utils.BaseGame;
 
 public class Ball extends BaseActor {
 
+    public boolean is_bounced_vertical = false;
+    public boolean is_bounced_horizontal = false;
+
     private float speed = MathUtils.random(2.5f, 6.5f);
     private float movementAcceleration = speed * 0.75f;
 
@@ -93,18 +96,20 @@ public class Ball extends BaseActor {
 
 
     private void squish_against_vertical_bounds() {
+        is_bounced_vertical = true;
         float duration = 0.25f * speed / 10;
         addAction(Actions.sequence(
-            Actions.scaleTo(1 + speed / 10, 1 - speed / 10, duration),
+            Actions.scaleTo(1 - speed / 10, 1 + speed / 10, duration),
             Actions.scaleTo(1f, 1f, duration)
         ));
     }
 
 
     private void squish_against_horizontal_bounds() {
+        is_bounced_horizontal = true;
         float duration = 0.25f * speed / 10;
         addAction(Actions.sequence(
-            Actions.scaleTo(1 - speed / 10, 1 + speed / 10, duration),
+            Actions.scaleTo(1 + speed / 10, 1 - speed / 10, duration),
             Actions.scaleTo(1f, 1f, duration)
         ));
     }
