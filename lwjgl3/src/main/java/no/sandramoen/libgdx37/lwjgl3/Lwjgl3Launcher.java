@@ -1,4 +1,4 @@
-package no.sandramoen.libgdx35.lwjgl3;
+package no.sandramoen.libgdx37.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;

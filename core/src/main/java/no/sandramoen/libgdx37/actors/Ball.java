@@ -14,8 +14,8 @@ public class Ball extends BaseActor {
     private float speed = 4.0f;
     private float movementAcceleration = speed * 0.75f;
 
-    public Ball(Stage stage) {
-        super(0f, 0f, stage);
+    public Ball(Stage stage, float x, float y) {
+        super(x, y, stage);
 
         loadImage("whitePixel");
         setColor(Color.FIREBRICK);

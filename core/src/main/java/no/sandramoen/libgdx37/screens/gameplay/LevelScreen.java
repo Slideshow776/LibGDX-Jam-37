@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TextraLabel;
 
 import no.sandramoen.libgdx37.actors.Background;
@@ -17,12 +18,13 @@ import no.sandramoen.libgdx37.actors.particles.EffectBurst;
 import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
 import no.sandramoen.libgdx37.utils.BaseScreen;
+import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class LevelScreen extends BaseScreen {
 
     private BaseActor overlay;
     private Background background;
-    private PlayArea playArea;
+    private Array<PlayArea> play_areas;
 
     private boolean is_game_over = false;
     private int score = 0;
@@ -35,7 +37,6 @@ public class LevelScreen extends BaseScreen {
     @Override
     public void initialize() {
         // audio
-
         /*AssetLoader.ambianceMusic.setLooping(true);
         AssetLoader.ambianceMusic.setPosition(MathUtils.random(0f, 40f));
         AssetLoader.ambianceMusic.setVolume(BaseGame.musicVolume);
@@ -43,18 +44,15 @@ public class LevelScreen extends BaseScreen {
 
         // actors
         background = new Background(mainStage);
-        playArea = new PlayArea(mainStage);
 
-        // todo add ball
-        for (int i = 0; i < 4; i++) {
-            Ball ball = new Ball(mainStage);
-            playArea.addActor(ball);
-            ball.setWorldBounds(playArea.getWidth(), playArea.getHeight());
-            ball.setPosition(
-                MathUtils.random(0f, playArea.getWidth()),
-                MathUtils.random(0f, playArea.getHeight())
-            );
-        }
+        play_areas = new Array<PlayArea>();
+        play_areas.add(new PlayArea(mainStage, 1, 1, 14, 7));
+
+        // add ball
+        for (PlayArea area : play_areas)
+            for (int i = 0; i < 100; i++) {
+                area.spawn_ball();
+            }
     }
 
 
@@ -74,12 +72,39 @@ public class LevelScreen extends BaseScreen {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Vector2 world_position = mainStage.screenToStageCoordinates(new Vector2(screenX, screenY));
-
         EffectBurst effect = new EffectBurst();
         effect.setPosition(world_position.x, world_position.y);
         effect.setScale(0.00125f);
         mainStage.addActor(effect);
         effect.start();
+
+        // play-area test
+        for (PlayArea area : play_areas) {
+            if (area.getBoundaryPolygon().contains(world_position)) {
+                PlayArea area_1 = new PlayArea(mainStage, 1, 1, 6, 7);
+                PlayArea area_2 = new PlayArea(mainStage, 8, 1, 6, 7);
+                play_areas.add(area_1);
+                play_areas.add(area_2);
+
+                Array<Ball> balls = area.get_balls();
+                for (Ball ball : balls) {
+                    Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
+                    if (area_1.getBoundaryPolygon().contains(ball_world_position)) {
+                        area_1.add_ball(ball);
+                    } else if (area_2.getBoundaryPolygon().contains(ball_world_position)) {
+                        area_2.add_ball(ball);
+                    } else {
+                        System.out.println("Ball lost!?");
+                        ball.remove();
+                    }
+                }
+
+                play_areas.removeValue(area, false);
+                area.remove();
+                break;
+            }
+        }
+
 
         return super.touchDown(screenX, screenY, pointer, button);
     }
