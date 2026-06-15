@@ -44,13 +44,6 @@ public abstract class BaseGame extends Game implements AssetErrorListener {
         Gdx.input.setInputProcessor(new InputMultiplexer());
         loadGameState();
         new AssetLoader();
-
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("images/excluded/cursor.png"));
-        // Set hotspot to the middle of it (0,0 would be the top-left corner)
-        int xHotspot = 15, yHotspot = 15;
-        Cursor cursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot);
-        pixmap.dispose(); // We don't need the pixmap anymore
-        Gdx.graphics.setCursor(cursor);
     }
 
     public static void setActiveScreen(no.sandramoen.libgdx37.utils.BaseScreen screen) {

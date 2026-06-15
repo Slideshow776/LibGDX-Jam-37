@@ -5,6 +5,8 @@ import static net.dermetfan.gdx.scenes.scene2d.Scene2DUtils.stageToLocalCoordina
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -56,6 +58,9 @@ public class LevelScreen extends BaseScreen {
             }
 
         dividers = new Array<Divider>();
+
+        set_vertical_cursor();
+
     }
 
 
@@ -110,6 +115,15 @@ public class LevelScreen extends BaseScreen {
         mainStage.addActor(effect);
         effect.start();
 
+        if (button == Input.Buttons.RIGHT) {
+            is_division_horizontal = !is_division_horizontal;
+            if (is_division_horizontal)
+                set_horizontal_cursor();
+            else
+                set_vertical_cursor();
+            return super.touchDown(screenX, screenY, pointer, button);
+        }
+
         // dividers
         for (PlayArea area : play_areas) {
             if (area.contains(world_position) && dividers.size == 0) {
@@ -144,6 +158,7 @@ public class LevelScreen extends BaseScreen {
     private void split_area_horizontally(PlayArea area, float divider_Y) {
 
     }
+
 
     private void split_area_vertically(PlayArea area, float divider_x) {
         // create areas
@@ -192,6 +207,26 @@ public class LevelScreen extends BaseScreen {
             area_left.remove_empty();
         if (area_right.get_balls().size == 0)
             area_right.remove_empty();
+    }
+
+
+    private void set_horizontal_cursor() {
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("images/excluded/cursor_horizontally.png"));
+        // Set hotspot to the middle of it (0,0 would be the top-left corner)
+        int xHotspot = 15, yHotspot = 15;
+        Cursor cursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot);
+        pixmap.dispose(); // We don't need the pixmap anymore
+        Gdx.graphics.setCursor(cursor);
+    }
+
+
+    private void set_vertical_cursor() {
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("images/excluded/cursor_vertically.png"));
+        // Set hotspot to the middle of it (0,0 would be the top-left corner)
+        int xHotspot = 15, yHotspot = 15;
+        Cursor cursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot);
+        pixmap.dispose(); // We don't need the pixmap anymore
+        Gdx.graphics.setCursor(cursor);
     }
 
 
