@@ -51,9 +51,9 @@ public class LevelScreen extends BaseScreen {
         background = new Background(mainStage);
 
         play_areas = new Array<PlayArea>();
-        play_areas.add(new PlayArea(mainStage, 1, 1, 14, 7));
+        play_areas.add(new PlayArea(mainStage, 1, 1.25f, 14, 7));
         for (PlayArea area : play_areas)
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 10; i++) {
                 area.spawn_ball();
             }
 
@@ -156,7 +156,48 @@ public class LevelScreen extends BaseScreen {
 
 
     private void split_area_horizontally(PlayArea area, float divider_Y) {
+        // create areas
+        PlayArea area_left = new PlayArea(
+            mainStage,
+            area.getX(),
+            area.getY(),
+            area.getWidth(),
+            divider_Y
+        );
+        if (area_left.getWidth() >= Divider.SIZE)
+            play_areas.add(area_left);
+        else
+            area_left.remove();
 
+        PlayArea area_right = new PlayArea(
+            mainStage,
+            area.getX(),
+            area.getY() + divider_Y + Divider.SIZE,
+            area.getWidth(),
+            area.getHeight() - divider_Y - Divider.SIZE
+        );
+        if (area_right.getWidth() >= Divider.SIZE)
+            play_areas.add(area_right);
+        else
+            area_right.remove();
+
+        //  transfer balls
+        for (Ball ball : area.get_balls()) {
+            Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
+
+            if (area_left.contains(ball_world_position)) {
+                area_left.add_ball(ball);
+            } else if (area_right.contains(ball_world_position)) {
+                area_right.add_ball(ball);
+            } else {
+                Ball temp = new Ball(mainStage, ball_world_position.x, ball_world_position.y);
+                ball.remove();
+                temp.remove_lost();
+            }
+        }
+
+        play_areas.removeValue(area, false);
+        area.remove_split();
     }
 
 
@@ -195,18 +236,14 @@ public class LevelScreen extends BaseScreen {
             } else if (area_right.contains(ball_world_position)) {
                 area_right.add_ball(ball);
             } else {
-                System.out.println("Ball lost!?");
+                Ball temp = new Ball(mainStage, ball_world_position.x, ball_world_position.y);
                 ball.remove();
+                temp.remove_lost();
             }
         }
 
         play_areas.removeValue(area, false);
-        area.remove();
-
-        if (area_left.get_balls().size == 0)
-            area_left.remove_empty();
-        if (area_right.get_balls().size == 0)
-            area_right.remove_empty();
+        area.remove_split();
     }
 
 

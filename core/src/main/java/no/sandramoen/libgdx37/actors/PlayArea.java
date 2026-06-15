@@ -29,8 +29,32 @@ public class PlayArea extends BaseActor {
         //setDebug(true);
 
         balls = new Array<Ball>();
+
+        float duration = 0.5f;
+        addAction(Actions.sequence(
+            Actions.delay(MathUtils.random(0f, 0.25f)),
+            Actions.scaleTo(1.05f, 1.05f, duration * 0.5f, Interpolation.circleOut),
+            Actions.scaleTo(1f, 1f, duration, Interpolation.bounceOut),
+            Actions.run(() -> {
+                // heart rate animation
+                addAction(Actions.forever(Actions.sequence(
+                    Actions.scaleTo(1.005f, 1.005f, 0.2f, Interpolation.exp10Out),
+                    Actions.scaleTo(1f, 1f, 0.8f, Interpolation.bounceOut),
+                    Actions.delay(0.4f)
+                )));
+            })
+        ));
     }
 
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+
+        if (balls.isEmpty()) {
+            remove_empty();
+        }
+    }
 
     @Override
     public boolean remove() {
@@ -39,15 +63,18 @@ public class PlayArea extends BaseActor {
     }
 
 
-    public void remove_empty() {
-        float duration = 1.5f;
+    public void remove_split() {
+        remove();
+        /*setZIndex(1);
+        float duration = 1.1f;
         addAction(Actions.sequence(
             Actions.parallel(
-                Actions.scaleTo(0.25f, 0.25f, duration, Interpolation.exp10Out),
+                Actions.scaleTo(1.1f, 1.1f, duration, Interpolation.exp10Out),
+                Actions.color(Color.DARK_GRAY),
                 Actions.fadeOut(duration)
             ),
             Actions.run(() -> remove())
-        ));
+        ));*/
     }
 
 
@@ -90,5 +117,17 @@ public class PlayArea extends BaseActor {
         for (Ball ball : balls) {
             add_ball(ball);
         }
+    }
+
+
+    private void remove_empty() {
+        float duration = 1.5f;
+        addAction(Actions.sequence(
+            Actions.parallel(
+                Actions.scaleTo(0.25f, 0.25f, duration, Interpolation.exp10Out),
+                Actions.fadeOut(duration)
+            ),
+            Actions.run(() -> remove())
+        ));
     }
 }

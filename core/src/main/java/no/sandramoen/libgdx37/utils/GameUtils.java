@@ -117,7 +117,8 @@ public class GameUtils {
         float r = 0f;
         float g = 0f;
         float b = 0f;
-        while (r <= 0 && g <= 0 && b <= 0) {
+        float threshold = 0.8f;
+        while (r <= threshold && g <= threshold && b <= threshold) {
             r = MathUtils.random(0f, 1f);
             g = MathUtils.random(0f, 1f);
             b = MathUtils.random(0f, 1f);
