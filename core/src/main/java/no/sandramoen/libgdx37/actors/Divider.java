@@ -73,6 +73,8 @@ public class Divider extends BaseActor {
             } else if (going == Going.RIGHT || going == Going.LEFT) {
                 setScaleX(getScaleX() + speed);
             }
+        } else {
+            isCollisionEnabled = false;
         }
     }
 

@@ -53,7 +53,7 @@ public class LevelScreen extends BaseScreen {
         play_areas = new Array<PlayArea>();
         play_areas.add(new PlayArea(mainStage, 1, 1.25f, 14, 7));
         for (PlayArea area : play_areas)
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 8; i++) {
                 area.spawn_ball();
             }
 
@@ -66,11 +66,31 @@ public class LevelScreen extends BaseScreen {
 
     @Override
     public void update(float delta) {
+
+        if (dividers.size == 1) {
+            for (Divider divider : dividers) {
+                divider.remove();
+                dividers.clear();
+            }
+            return;
+        }
+
         boolean is_both_stopped = true;
         for (Divider divider : dividers) {
-            if (divider.is_growing) {
+            if (divider.is_growing)
                 is_both_stopped = false;
-            }
+
+            /*for (PlayArea area : play_areas) {
+                for (Ball ball : area.get_balls()) {
+                    if (ball.overlaps(divider)) {
+                        dividers.removeValue(divider, false);
+                        divider.remove();
+                        area.get_balls().removeValue(ball, false);
+                        ball.remove_lost();
+                        break;
+                    }
+                }
+            }*/
         }
 
         if (is_both_stopped && dividers.size == 2) {

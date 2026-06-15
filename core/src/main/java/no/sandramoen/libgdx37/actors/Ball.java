@@ -30,7 +30,7 @@ public class Ball extends BaseActor {
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
-        //setDebug(true);
+        // setDebug(true);
 
         // movement
         setAcceleration(movementAcceleration);
@@ -96,20 +96,20 @@ public class Ball extends BaseActor {
 
 
     private void squish_against_vertical_bounds() {
-        is_bounced_vertical = true;
+        is_bounced_horizontal = true;
         float duration = 0.25f * speed / 10;
         addAction(Actions.sequence(
-            Actions.scaleTo(1 - speed / 10, 1 + speed / 10, duration),
+            Actions.scaleTo(1 + speed / 10, 1 - speed / 10, duration),
             Actions.scaleTo(1f, 1f, duration)
         ));
     }
 
 
     private void squish_against_horizontal_bounds() {
-        is_bounced_horizontal = true;
+        is_bounced_vertical = true;
         float duration = 0.25f * speed / 10;
         addAction(Actions.sequence(
-            Actions.scaleTo(1 + speed / 10, 1 - speed / 10, duration),
+            Actions.scaleTo(1 - speed / 10, 1 + speed / 10, duration),
             Actions.scaleTo(1f, 1f, duration)
         ));
     }

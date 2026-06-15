@@ -57,17 +57,20 @@ public class PlayArea extends BaseActor {
         for (Ball ball : balls) {
             if (ball.is_bounced_horizontal) {
                 float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
-                addAction(Actions.sequence(
-                    Actions.scaleBy(amount * 1.1f, amount * 0.9f, 0.1f),
-                    Actions.scaleBy(-amount * 1.1f, -amount * 0.9f, 0.1f)
-                ));
+                if (getScaleX() < 1.2f && getScaleY() < 1.2f)
+                    addAction(Actions.sequence(
+                        Actions.scaleBy(amount * 1.1f, amount * 0.9f, 0.1f),
+                        Actions.scaleBy(-amount * 1.1f, -amount * 0.9f, 0.1f)
+                    ));
+
                 ball.is_bounced_horizontal = false;
             } else if (ball.is_bounced_vertical) {
                 float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
-                addAction(Actions.sequence(
-                    Actions.scaleBy(amount * 0.9f, amount * 1.1f, 0.1f),
-                    Actions.scaleBy(-amount * 0.9f, -amount * 1.1f, 0.1f)
-                ));
+                if (getScaleX() < 1.2f && getScaleY() < 1.2f)
+                    addAction(Actions.sequence(
+                        Actions.scaleBy(amount * 0.9f, amount * 1.1f, 0.1f),
+                        Actions.scaleBy(-amount * 0.9f, -amount * 1.1f, 0.1f)
+                    ));
                 ball.is_bounced_vertical = false;
             }
         }
