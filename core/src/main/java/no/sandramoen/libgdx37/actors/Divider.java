@@ -9,16 +9,18 @@ import no.sandramoen.libgdx37.utils.BaseActor;
 
 public class Divider extends BaseActor {
 
-     public enum Going {
+    public static final float SIZE = 0.25f;
+    public enum Going {
          UP,
          RIGHT,
          DOWN,
          LEFT
     }
+    public boolean is_growing = true;
+    public boolean is_horizontal = false;
 
     private Going going;
     private float speed = 0.01f;
-    private boolean is_growing = true;
 
     public Divider(Stage stage, Vector2 position, PlayArea area, Going going) {
         super(position.x, position.y, stage);
@@ -26,7 +28,7 @@ public class Divider extends BaseActor {
         loadImage("whitePixel");
 
         // body
-        setSize(0.25f, 0.25f);
+        setSize(SIZE, SIZE);
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
@@ -45,12 +47,14 @@ public class Divider extends BaseActor {
             setColor(Color.GOLDENROD);
             setOrigin(Align.bottom);
         } else if (going == Going.RIGHT) {
+            is_horizontal = true;
             setOrigin(Align.left);
             setColor(Color.FOREST);
         } else if (going == Going.DOWN) {
             setOrigin(Align.top);
             setColor(Color.BLUE);
         } else if (going == Going.LEFT) {
+            is_horizontal = true;
             setOrigin(Align.right);
             setColor(Color.OLIVE);
         }

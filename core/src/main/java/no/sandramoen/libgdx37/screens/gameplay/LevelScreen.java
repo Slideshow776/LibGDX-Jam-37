@@ -26,8 +26,10 @@ public class LevelScreen extends BaseScreen {
     private BaseActor overlay;
     private Background background;
     private Array<PlayArea> play_areas;
+    private Array<Divider> dividers;
 
     private boolean is_game_over = false;
+    private boolean is_division_horizontal = false;
     private int score = 0;
 
     private TextraLabel score_label;
@@ -48,17 +50,44 @@ public class LevelScreen extends BaseScreen {
 
         play_areas = new Array<PlayArea>();
         play_areas.add(new PlayArea(mainStage, 1, 1, 14, 7));
-
-        // add ball
         for (PlayArea area : play_areas)
             for (int i = 0; i < 1; i++) {
                 area.spawn_ball();
             }
+
+        dividers = new Array<Divider>();
     }
 
 
     @Override
-    public void update(float delta) {}
+    public void update(float delta) {
+        boolean is_both_stopped = true;
+        for (Divider divider : dividers) {
+            if (divider.is_growing) {
+                is_both_stopped = false;
+            }
+        }
+
+        if (is_both_stopped && dividers.size == 2) {
+            PlayArea area = null;
+            boolean is_horizontal = false;
+            float divider_x = 0f;
+            float divider_y = 0f;
+            for (Divider divider : dividers) {
+                area = (PlayArea) divider.getParent();
+                is_horizontal = divider.is_horizontal;
+                divider_x = divider.getX();
+                divider_y = divider.getY();
+                divider.remove();
+            }
+            dividers.clear();
+
+            if (is_horizontal)
+                split_area_horizontally(area, divider_y);
+            else
+                split_area_vertically(area, divider_x);
+        }
+    }
 
 
     @Override
@@ -73,63 +102,96 @@ public class LevelScreen extends BaseScreen {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Vector2 world_position = mainStage.screenToStageCoordinates(new Vector2(screenX, screenY));
+
+        // particle effect
         EffectBurst effect = new EffectBurst();
         effect.setPosition(world_position.x, world_position.y);
         effect.setScale(0.00125f);
         mainStage.addActor(effect);
         effect.start();
 
-        // play-area test
+        // dividers
         for (PlayArea area : play_areas) {
-            if (area.getBoundaryPolygon().contains(world_position)) {
-                Divider divider_up = new Divider(mainStage, world_position, area, Divider.Going.UP);
-                //Divider divider_right = new Divider(mainStage, world_position, area, Divider.Going.RIGHT);
-                Divider divider_down = new Divider(mainStage, world_position, area, Divider.Going.DOWN);
-                //Divider divider_left = new Divider(mainStage, world_position, area, Divider.Going.LEFT);
-                area.addActor(divider_up);
-                //area.addActor(divider_right);
-                area.addActor(divider_down);
-                //area.addActor(divider_left);
-
-                PlayArea area_1 = new PlayArea(mainStage, 1, 1, 6, 7);
-                PlayArea area_2 = new PlayArea(mainStage, 8, 1, 6, 7);
-                play_areas.add(area_1);
-                play_areas.add(area_2);
-
-                Array<Ball> balls = area.get_balls();
-                for (Ball ball : balls) {
-                    Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
-                    if (area_1.getBoundaryPolygon().contains(ball_world_position)) {
-                        area_1.add_ball(ball);
-                    } else if (area_2.getBoundaryPolygon().contains(ball_world_position)) {
-                        area_2.add_ball(ball);
-                    } else {
-                        System.out.println("Ball lost!?");
-                        ball.remove();
-                    }
-                }
-
-                play_areas.removeValue(area, false);
-                area.remove();
+            if (area.contains(world_position) && dividers.size == 0) {
+                create_dividers(world_position, area);
                 break;
             }
         }
 
-        // divider test
-        /*for (PlayArea area : play_areas) {
-            if (area.getBoundaryPolygon().contains(world_position)) {
-                Divider divider_up = new Divider(mainStage, world_position, area, Divider.Going.UP);
-                //Divider divider_right = new Divider(mainStage, world_position, area, Divider.Going.RIGHT);
-                Divider divider_down = new Divider(mainStage, world_position, area, Divider.Going.DOWN);
-                //Divider divider_left = new Divider(mainStage, world_position, area, Divider.Going.LEFT);
-                area.addActor(divider_up);
-                //area.addActor(divider_right);
-                area.addActor(divider_down);
-                //area.addActor(divider_left);
-            }
-        }*/
-
         return super.touchDown(screenX, screenY, pointer, button);
+    }
+
+
+    private void create_dividers(Vector2 world_position, PlayArea area) {
+        if (is_division_horizontal) {
+            Divider divider_right = new Divider(mainStage, world_position, area, Divider.Going.RIGHT);
+            Divider divider_left = new Divider(mainStage, world_position, area, Divider.Going.LEFT);
+            area.addActor(divider_right);
+            area.addActor(divider_left);
+            dividers.add(divider_right);
+            dividers.add(divider_left);
+        } else {
+            Divider divider_up = new Divider(mainStage, world_position, area, Divider.Going.UP);
+            Divider divider_down = new Divider(mainStage, world_position, area, Divider.Going.DOWN);
+            area.addActor(divider_up);
+            area.addActor(divider_down);
+            dividers.add(divider_up);
+            dividers.add(divider_down);
+        }
+    }
+
+
+    private void split_area_horizontally(PlayArea area, float divider_Y) {
+
+    }
+
+    private void split_area_vertically(PlayArea area, float divider_x) {
+        // create areas
+        PlayArea area_left = new PlayArea(
+            mainStage,
+            area.getX(),
+            area.getY(),
+            divider_x,
+            area.getHeight()
+        );
+        if (area_left.getWidth() >= Divider.SIZE)
+            play_areas.add(area_left);
+        else
+            area_left.remove();
+
+        PlayArea area_right = new PlayArea(
+            mainStage,
+            area.getX() + divider_x + Divider.SIZE,
+            area.getY(),
+            area.getWidth() - divider_x - Divider.SIZE,
+            area.getHeight()
+        );
+        if (area_right.getWidth() >= Divider.SIZE)
+            play_areas.add(area_right);
+        else
+            area_right.remove();
+
+        //  transfer balls
+        for (Ball ball : area.get_balls()) {
+            Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
+
+            if (area_left.contains(ball_world_position)) {
+                area_left.add_ball(ball);
+            } else if (area_right.contains(ball_world_position)) {
+                area_right.add_ball(ball);
+            } else {
+                System.out.println("Ball lost!?");
+                ball.remove();
+            }
+        }
+
+        play_areas.removeValue(area, false);
+        area.remove();
+
+        if (area_left.get_balls().size == 0)
+            area_left.remove_empty();
+        if (area_right.get_balls().size == 0)
+            area_right.remove_empty();
     }
 
 

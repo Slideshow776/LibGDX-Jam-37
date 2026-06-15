@@ -23,7 +23,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class BaseActor extends Group {
 
-    protected static Rectangle worldBounds;
+    protected Rectangle worldBounds;
     private static int ID_COUNTER = 0;
 
     public Animation<TextureRegion> animation;
@@ -477,7 +477,7 @@ public class BaseActor extends Group {
             setY(worldBounds.height - getHeight());
     }
 
-    public static void setWorldBounds(float width, float height) {
+    public void setWorldBounds(float width, float height) {
         worldBounds = new Rectangle(0, 0, width, height);
     }
 
@@ -485,7 +485,7 @@ public class BaseActor extends Group {
         worldBounds = new Rectangle(0, 0, width, height);
     }
 
-    public static void setWorldBounds(BaseActor ba) {
+    public void setWorldBounds(BaseActor ba) {
         setWorldBounds(ba.getWidth(), ba.getHeight());
     }
 }

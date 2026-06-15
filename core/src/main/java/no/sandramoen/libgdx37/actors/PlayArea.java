@@ -1,14 +1,15 @@
 package no.sandramoen.libgdx37.actors;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
 import no.sandramoen.libgdx37.utils.BaseActor;
-import no.sandramoen.libgdx37.utils.BaseGame;
+import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class PlayArea extends BaseActor {
 
@@ -18,7 +19,7 @@ public class PlayArea extends BaseActor {
         super(x, y, stage);
 
         loadImage("whitePixel");
-        setColor(Color.GRAY);
+        setColor(GameUtils.randomLightColor());
 
         // body
         setSize(width, height);
@@ -31,8 +32,32 @@ public class PlayArea extends BaseActor {
     }
 
 
+    @Override
+    public boolean remove() {
+        balls.clear();
+        return super.remove();
+    }
+
+
+    public void remove_empty() {
+        float duration = 1.5f;
+        addAction(Actions.sequence(
+            Actions.parallel(
+                Actions.scaleTo(0.25f, 0.25f, duration, Interpolation.exp10Out),
+                Actions.fadeOut(duration)
+            ),
+            Actions.run(() -> remove())
+        ));
+    }
+
+
     public Array<Ball> get_balls() {
         return balls;
+    }
+
+
+    public boolean contains(Vector2 position) {
+        return getBoundaryPolygon().contains(position);
     }
 
 
@@ -48,6 +73,10 @@ public class PlayArea extends BaseActor {
 
     public void add_ball(Ball ball) {
         Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
+
+        if (ball.getParent() != null)
+            ball.getParent().removeActor(ball);
+
         Vector2 new_local_position = stageToLocalCoordinates(ball_world_position);
         ball.setPosition(new_local_position.x, new_local_position.y);
 
