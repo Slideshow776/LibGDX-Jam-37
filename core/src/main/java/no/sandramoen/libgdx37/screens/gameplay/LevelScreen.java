@@ -19,6 +19,7 @@ import no.sandramoen.libgdx37.actors.Ball;
 import no.sandramoen.libgdx37.actors.Divider;
 import no.sandramoen.libgdx37.actors.PlayArea;
 import no.sandramoen.libgdx37.actors.particles.EffectBurst;
+import no.sandramoen.libgdx37.gui.BaseProgressBar;
 import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
 import no.sandramoen.libgdx37.utils.BaseScreen;
@@ -32,9 +33,12 @@ public class LevelScreen extends BaseScreen {
 
     private boolean is_game_over = false;
     private boolean is_division_horizontal = false;
-    private int score = 0;
+    private float life_increment = 0f;
+    private float life_frequency = 1f;
 
     private TextraLabel score_label;
+    private BaseProgressBar life_bar;
+    private BaseProgressBar fulfillment_bar;
 
     public LevelScreen() {}
 
@@ -61,11 +65,22 @@ public class LevelScreen extends BaseScreen {
 
         set_vertical_cursor();
 
+        initialize_gui();
     }
 
 
     @Override
     public void update(float delta) {
+        if (is_game_over)
+            return;
+
+        if (life_increment >= life_frequency) {
+            life_increment = 0f;
+            life_bar.decrementPercentage(1, 2f);
+        } else {
+            life_increment += delta;
+        }
+
 
         if (dividers.size == 1) {
             for (Divider divider : dividers) {
@@ -289,34 +304,27 @@ public class LevelScreen extends BaseScreen {
 
     private void initialize_gui() {
         // resources setup
-        float label_scale = 0.5f;
-        Image score_image = new Image(AssetLoader.textureAtlas.findRegion("trophy"));
-        score_label = new TextraLabel("0", AssetLoader.getLabelStyle("IrishGrover_59"));
-        score_label.getFont().scale(label_scale);
-        score_label.setColor(Color.FOREST);
-        score_label.setAlignment(Align.center);
+        life_bar = new BaseProgressBar(Gdx.graphics.getWidth() * .0325f, Gdx.graphics.getHeight() * 0.9725f, uiStage);
+        life_bar.setProgress(100);
+        life_bar.set_color(Color.FIREBRICK);
+        life_bar.setProgressBarColor(Color.PINK);
+        uiStage.addActor(life_bar);
 
+        fulfillment_bar = new BaseProgressBar(Gdx.graphics.getWidth() * .0325f, Gdx.graphics.getHeight() * 0.0555f, uiStage);
+        fulfillment_bar.setProgress(0);
+        fulfillment_bar.set_color(Color.BROWN);
+        fulfillment_bar.setProgressBarColor(Color.GOLD);
+        uiStage.addActor(fulfillment_bar);
 
         // ui setup
         uiTable.defaults()
             .padTop(Gdx.graphics.getHeight() * .02f)
         ;
 
-        Table table = new Table();
-        table.add(score_image)
-            .width(Gdx.graphics.getWidth() * 0.025f)
-            .height(Gdx.graphics.getHeight() * 0.04f)
-        ;
-        table.add(score_label)
-            .top()
-            .padLeft(Gdx.graphics.getWidth() * 0.01f)
-        ;
-
-        uiTable.add(table)
+        uiTable.add()
             .padTop(Gdx.graphics.getHeight() * .1f)
             .row()
         ;
-
 
         //uiTable.setDebug(true);
     }

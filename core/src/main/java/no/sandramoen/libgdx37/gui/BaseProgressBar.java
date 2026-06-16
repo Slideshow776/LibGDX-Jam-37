@@ -17,7 +17,7 @@ import no.sandramoen.libgdx37.utils.BaseActor;
 public class BaseProgressBar extends BaseActor {
 
     public int level = 0; // Store level as an integer from 0 to 100
-    public float animationDuration = 0.25f;
+    public float animationDuration = 1f;
 
     public BaseActor progress;
     private TypingLabel label;
@@ -31,7 +31,7 @@ public class BaseProgressBar extends BaseActor {
 
         loadImage("whitePixel");
         setColor(new Color(0.035f, 0.039f, 0.078f, 1f));
-        setSize(Gdx.graphics.getWidth() * 0.9f, Gdx.graphics.getHeight() * 0.025f);
+        setSize(Gdx.graphics.getWidth() * 0.935f, Gdx.graphics.getHeight() * 0.025f);
         setPosition(x, y - getHeight());
         setOrigin(Align.center);
 

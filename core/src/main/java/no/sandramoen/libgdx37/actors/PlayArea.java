@@ -14,6 +14,9 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 public class PlayArea extends BaseActor {
 
     private Array<Ball> balls;
+    private float size_increment = 0f;
+    private float size_frequency = 1f;
+    private float size_decrement_amount = MathUtils.random(0.025f, 0.075f);
 
     public PlayArea(Stage stage, float x, float y, float width, float height) {
         super(x, y, stage);
@@ -51,10 +54,26 @@ public class PlayArea extends BaseActor {
     public void act(float delta) {
         super.act(delta);
 
+        if (size_increment >= size_frequency) {
+            size_increment = 0f;
+            if (getWidth() > 0.34f && getHeight() > 0.34f)
+                addAction(Actions.parallel(
+                    Actions.sizeTo(getWidth() - size_decrement_amount, getHeight() - size_decrement_amount, size_frequency),
+                    Actions.moveBy(size_decrement_amount / 2f, size_decrement_amount / 2f, size_frequency)
+                ));
+            //System.out.println(getWidth() + ", " + getHeight());
+        } else {
+            size_increment += delta;
+        }
+
+        setBoundaryRectangle(1f);
+
+
         if (balls.isEmpty())
             remove_empty();
 
         for (Ball ball : balls) {
+            ball.setWorldBounds(this);
             if (ball.is_bounced_horizontal) {
                 float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
                 if (getScaleX() < 1.2f && getScaleY() < 1.2f)
@@ -75,6 +94,7 @@ public class PlayArea extends BaseActor {
             }
         }
     }
+
 
     @Override
     public boolean remove() {
