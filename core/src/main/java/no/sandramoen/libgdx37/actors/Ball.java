@@ -23,7 +23,7 @@ public class Ball extends BaseActor {
         super(x, y, stage);
 
         loadImage("whitePixel");
-        setColor(Color.FIREBRICK);
+        setColor(Color.RED);
 
         // body
         setSize(0.25f, 0.25f);

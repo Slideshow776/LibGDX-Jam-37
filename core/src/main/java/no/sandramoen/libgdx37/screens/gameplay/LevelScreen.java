@@ -7,8 +7,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
@@ -86,6 +88,24 @@ public class LevelScreen extends BaseScreen {
 
         decrement_life(delta);
         check_remove_empty_areas();
+
+        if (play_areas.isEmpty()) {
+            is_game_over = true;
+            life_bar.addAction(Actions.fadeOut(1f));
+            life_bar.progress.addAction(Actions.fadeOut(1f));
+
+            float fulfillment_duration = 4f;
+            fulfillment_bar.addAction(Actions.sequence(
+                Actions.moveTo(fulfillment_bar.getX(), Gdx.graphics.getHeight() * 0.5f - fulfillment_bar.getHeight(), 0.5f * fulfillment_duration, Interpolation.fade),
+                Actions.parallel(
+                    Actions.fadeOut(fulfillment_duration),
+                    Actions.run(() -> {
+                        fulfillment_bar.progress.addAction(Actions.fadeOut(fulfillment_duration));
+                    })
+
+                )
+            ));
+        }
 
         /*if (dividers.size == 1) {
             for (Divider divider : dividers) {
@@ -212,11 +232,13 @@ public class LevelScreen extends BaseScreen {
         handle_split(area, area_left, area_right);
     }
 
+
     private void split_area_vertically(PlayArea area, float divider_x) {
         PlayArea area_left = new PlayArea(mainStage, area.getX(), area.getY(), divider_x, area.getHeight());
         PlayArea area_right = new PlayArea(mainStage, area.getX() + divider_x + Divider.SIZE, area.getY(), area.getWidth() - divider_x - Divider.SIZE, area.getHeight());
         handle_split(area, area_left, area_right);
     }
+
 
     private void handle_split(PlayArea area, PlayArea area_left, PlayArea area_right) {
         validate_area(area_left);
@@ -234,6 +256,7 @@ public class LevelScreen extends BaseScreen {
             area.remove();
         }
     }
+
 
     private void transfer_balls(PlayArea area, PlayArea area_left, PlayArea area_right) {
         for (Ball ball : area.get_balls()) {
@@ -261,6 +284,9 @@ public class LevelScreen extends BaseScreen {
 
     private void check_remove_empty_areas() {
         for (PlayArea area : play_areas) {
+            if (!area.isCollisionEnabled)
+                play_areas.removeValue(area, false);
+
             if (!area.is_being_divided) {
                 if (area.get_balls().isEmpty()) {
                     if (area.isCollisionEnabled) {
@@ -274,6 +300,9 @@ public class LevelScreen extends BaseScreen {
 
 
     private void decrement_life(float delta) {
+        if (play_areas.isEmpty())
+            return;
+
         if (life_increment >= life_frequency) {
             life_increment = 0f;
             life_bar.decrementPercentage(1, 2f);

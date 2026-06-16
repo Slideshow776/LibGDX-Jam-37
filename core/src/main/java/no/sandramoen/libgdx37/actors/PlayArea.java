@@ -13,12 +13,14 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class PlayArea extends BaseActor {
 
+    public float min_area_size = 2f;
+
     public boolean is_being_divided = false;
 
     private Array<Ball> balls;
     private float size_increment = 0f;
     private float size_frequency = 1f;
-    private float size_decrement_amount = MathUtils.random(0.025f, 0.075f);
+    private float size_decrement_amount = 0.05f; //MathUtils.random(0.025f, 0.075f);
 
     public PlayArea(Stage stage, float x, float y, float width, float height) {
         super(x, y, stage);
@@ -58,12 +60,11 @@ public class PlayArea extends BaseActor {
 
         if (size_increment >= size_frequency) {
             size_increment = 0f;
-            if (getWidth() > 0.34f && getHeight() > 0.34f)
+            if (get_area_size() > min_area_size * size_decrement_amount)
                 addAction(Actions.parallel(
                     Actions.sizeTo(getWidth() - size_decrement_amount, getHeight() - size_decrement_amount, size_frequency),
                     Actions.moveBy(size_decrement_amount / 2f, size_decrement_amount / 2f, size_frequency)
                 ));
-            //System.out.println(getWidth() + ", " + getHeight());
         } else {
             size_increment += delta;
         }
@@ -72,8 +73,13 @@ public class PlayArea extends BaseActor {
 
         for (Ball ball : balls) {
             ball.setWorldBounds(this);
+
+            /*if (get_area_size() < 5f)
+                break;*/
+
             if (ball.is_bounced_horizontal) {
-                float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
+                float amount = 0.005f * ball.getSpeed() * ( 1f / (getWidth() * getHeight()) );
+                amount = MathUtils.clamp(amount, 0f, 0.01f);
                 if (getScaleX() < 1.2f && getScaleY() < 1.2f)
                     addAction(Actions.sequence(
                         Actions.scaleBy(amount * 1.1f, amount * 0.9f, 0.1f),
@@ -82,7 +88,8 @@ public class PlayArea extends BaseActor {
 
                 ball.is_bounced_horizontal = false;
             } else if (ball.is_bounced_vertical) {
-                float amount = 0.005f * ball.getSpeed() * ( 1 / (getWidth() * getHeight()) );
+                float amount = 0.005f * ball.getSpeed() * ( 1f / (getWidth() * getHeight()) );
+                amount = MathUtils.clamp(amount, 0f, 0.01f);
                 if (getScaleX() < 1.2f && getScaleY() < 1.2f)
                     addAction(Actions.sequence(
                         Actions.scaleBy(amount * 0.9f, amount * 1.1f, 0.1f),
