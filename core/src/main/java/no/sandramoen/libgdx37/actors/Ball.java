@@ -58,6 +58,10 @@ public class Ball extends BaseActor {
 
 
     public void remove_lost() {
+        if (!isCollisionEnabled)
+            return;
+
+        isCollisionEnabled = false;
         float duration = 1.5f;
         addAction(Actions.sequence(
             Actions.parallel(

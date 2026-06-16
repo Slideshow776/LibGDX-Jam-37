@@ -7,9 +7,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TextraLabel;
@@ -23,6 +25,7 @@ import no.sandramoen.libgdx37.gui.BaseProgressBar;
 import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
 import no.sandramoen.libgdx37.utils.BaseScreen;
+import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class LevelScreen extends BaseScreen {
 
@@ -31,8 +34,14 @@ public class LevelScreen extends BaseScreen {
     private Array<PlayArea> play_areas;
     private Array<Divider> dividers;
 
+    private final int NUM_BALLS = 8;
+    private final float MAX_AREA_SIZE = 98f;
+
+    private boolean is_discard_fulfillment = false;
     private boolean is_game_over = false;
     private boolean is_division_horizontal = false;
+    private float area_split_and_lost = 0f;
+
     private float life_increment = 0f;
     private float life_frequency = 1f;
 
@@ -56,10 +65,11 @@ public class LevelScreen extends BaseScreen {
 
         play_areas = new Array<PlayArea>();
         play_areas.add(new PlayArea(mainStage, 1, 1.25f, 14, 7));
-        for (PlayArea area : play_areas)
-            for (int i = 0; i < 8; i++) {
+        for (PlayArea area : play_areas) {
+            for (int i = 0; i < NUM_BALLS; i++) {
                 area.spawn_ball();
             }
+        }
 
         dividers = new Array<Divider>();
 
@@ -74,38 +84,41 @@ public class LevelScreen extends BaseScreen {
         if (is_game_over)
             return;
 
-        if (life_increment >= life_frequency) {
-            life_increment = 0f;
-            life_bar.decrementPercentage(1, 2f);
-        } else {
-            life_increment += delta;
-        }
+        decrement_life(delta);
+        check_remove_empty_areas();
 
-
-        if (dividers.size == 1) {
+        /*if (dividers.size == 1) {
             for (Divider divider : dividers) {
                 divider.remove();
                 dividers.clear();
             }
             return;
-        }
+        }*/
 
         boolean is_both_stopped = true;
         for (Divider divider : dividers) {
             if (divider.is_growing)
                 is_both_stopped = false;
 
-            /*for (PlayArea area : play_areas) {
+            for (PlayArea area : play_areas) {
+                if (!area.is_being_divided)
+                    continue;
+
                 for (Ball ball : area.get_balls()) {
                     if (ball.overlaps(divider)) {
-                        dividers.removeValue(divider, false);
-                        divider.remove();
+                        /*dividers.removeValue(divider, false);
+                        divider.remove();*/
+
                         area.get_balls().removeValue(ball, false);
                         ball.remove_lost();
+                        is_discard_fulfillment = true;
+
                         break;
+
+                        //System.out.println("is_discard_fulfillment = true");
                     }
                 }
-            }*/
+            }
         }
 
         if (is_both_stopped && dividers.size == 2) {
@@ -162,6 +175,8 @@ public class LevelScreen extends BaseScreen {
         // dividers
         for (PlayArea area : play_areas) {
             if (area.contains(world_position) && dividers.size == 0) {
+                is_discard_fulfillment = false;
+                //System.out.println("is_discard_fulfillment = false");
                 create_dividers(world_position, area);
                 break;
             }
@@ -187,36 +202,40 @@ public class LevelScreen extends BaseScreen {
             dividers.add(divider_up);
             dividers.add(divider_down);
         }
+        area.is_being_divided = true;
     }
 
 
     private void split_area_horizontally(PlayArea area, float divider_Y) {
-        // create areas
-        PlayArea area_left = new PlayArea(
-            mainStage,
-            area.getX(),
-            area.getY(),
-            area.getWidth(),
-            divider_Y
-        );
-        if (area_left.getWidth() >= Divider.SIZE)
-            play_areas.add(area_left);
-        else
-            area_left.remove();
+        PlayArea area_left = new PlayArea(mainStage, area.getX(), area.getY(), area.getWidth(), divider_Y);
+        PlayArea area_right = new PlayArea(mainStage, area.getX(), area.getY() + divider_Y + Divider.SIZE, area.getWidth(), area.getHeight() - divider_Y - Divider.SIZE);
+        handle_split(area, area_left, area_right);
+    }
 
-        PlayArea area_right = new PlayArea(
-            mainStage,
-            area.getX(),
-            area.getY() + divider_Y + Divider.SIZE,
-            area.getWidth(),
-            area.getHeight() - divider_Y - Divider.SIZE
-        );
-        if (area_right.getWidth() >= Divider.SIZE)
-            play_areas.add(area_right);
-        else
-            area_right.remove();
+    private void split_area_vertically(PlayArea area, float divider_x) {
+        PlayArea area_left = new PlayArea(mainStage, area.getX(), area.getY(), divider_x, area.getHeight());
+        PlayArea area_right = new PlayArea(mainStage, area.getX() + divider_x + Divider.SIZE, area.getY(), area.getWidth() - divider_x - Divider.SIZE, area.getHeight());
+        handle_split(area, area_left, area_right);
+    }
 
-        //  transfer balls
+    private void handle_split(PlayArea area, PlayArea area_left, PlayArea area_right) {
+        validate_area(area_left);
+        validate_area(area_right);
+        transfer_balls(area, area_left, area_right);
+        area_clean_up(area);
+    }
+
+
+    private void validate_area(PlayArea area) {
+        if (area.getWidth() >= Divider.SIZE)
+            play_areas.add(area);
+        else {
+            count_fulfillment(area.get_area_size());
+            area.remove();
+        }
+    }
+
+    private void transfer_balls(PlayArea area, PlayArea area_left, PlayArea area_right) {
         for (Ball ball : area.get_balls()) {
             Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
 
@@ -226,59 +245,41 @@ public class LevelScreen extends BaseScreen {
                 area_right.add_ball(ball);
             } else {
                 Ball temp = new Ball(mainStage, ball_world_position.x, ball_world_position.y);
-                ball.remove();
                 temp.remove_lost();
+                ball.remove();
             }
         }
+    }
 
+
+    private void area_clean_up(PlayArea area) {
+        area.get_balls().clear();
         play_areas.removeValue(area, false);
         area.remove_split();
     }
 
 
-    private void split_area_vertically(PlayArea area, float divider_x) {
-        // create areas
-        PlayArea area_left = new PlayArea(
-            mainStage,
-            area.getX(),
-            area.getY(),
-            divider_x,
-            area.getHeight()
-        );
-        if (area_left.getWidth() >= Divider.SIZE)
-            play_areas.add(area_left);
-        else
-            area_left.remove();
-
-        PlayArea area_right = new PlayArea(
-            mainStage,
-            area.getX() + divider_x + Divider.SIZE,
-            area.getY(),
-            area.getWidth() - divider_x - Divider.SIZE,
-            area.getHeight()
-        );
-        if (area_right.getWidth() >= Divider.SIZE)
-            play_areas.add(area_right);
-        else
-            area_right.remove();
-
-        //  transfer balls
-        for (Ball ball : area.get_balls()) {
-            Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
-
-            if (area_left.contains(ball_world_position)) {
-                area_left.add_ball(ball);
-            } else if (area_right.contains(ball_world_position)) {
-                area_right.add_ball(ball);
-            } else {
-                Ball temp = new Ball(mainStage, ball_world_position.x, ball_world_position.y);
-                ball.remove();
-                temp.remove_lost();
+    private void check_remove_empty_areas() {
+        for (PlayArea area : play_areas) {
+            if (!area.is_being_divided) {
+                if (area.get_balls().isEmpty()) {
+                    if (area.isCollisionEnabled) {
+                        count_fulfillment(area.get_area_size());
+                        area.remove_empty();
+                    }
+                }
             }
         }
+    }
 
-        play_areas.removeValue(area, false);
-        area.remove_split();
+
+    private void decrement_life(float delta) {
+        if (life_increment >= life_frequency) {
+            life_increment = 0f;
+            life_bar.decrementPercentage(1, 2f);
+        } else {
+            life_increment += delta;
+        }
     }
 
 
@@ -299,6 +300,18 @@ public class LevelScreen extends BaseScreen {
         Cursor cursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot);
         pixmap.dispose(); // We don't need the pixmap anymore
         Gdx.graphics.setCursor(cursor);
+    }
+
+
+    private void count_fulfillment(float area_size) {
+        if (is_discard_fulfillment)
+            return;
+
+        area_split_and_lost += area_size;
+        float normalized = GameUtils.normalizeValue(area_split_and_lost, 0f, MAX_AREA_SIZE);
+        int total_fulfillment = (int)(normalized * 100);
+        int next_level = total_fulfillment - fulfillment_bar.level;
+        fulfillment_bar.incrementPercentage(next_level, 1f);
     }
 
 

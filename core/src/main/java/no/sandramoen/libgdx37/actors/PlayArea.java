@@ -13,6 +13,8 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class PlayArea extends BaseActor {
 
+    public boolean is_being_divided = false;
+
     private Array<Ball> balls;
     private float size_increment = 0f;
     private float size_frequency = 1f;
@@ -68,10 +70,6 @@ public class PlayArea extends BaseActor {
 
         setBoundaryRectangle(1f);
 
-
-        if (balls.isEmpty())
-            remove_empty();
-
         for (Ball ball : balls) {
             ball.setWorldBounds(this);
             if (ball.is_bounced_horizontal) {
@@ -96,14 +94,27 @@ public class PlayArea extends BaseActor {
     }
 
 
+    public float get_area_size() {
+        return getWidth() * getHeight();
+    }
+
+
     @Override
     public boolean remove() {
+        if (!balls.isEmpty())
+            System.out.println("balls not empty!");
+
+        isCollisionEnabled = false;
         balls.clear();
         return super.remove();
     }
 
 
     public void remove_split() {
+        if (!isCollisionEnabled)
+            return;
+
+        isCollisionEnabled = false;
         remove();
         /*setZIndex(1);
         float duration = 1.1f;
@@ -141,8 +152,11 @@ public class PlayArea extends BaseActor {
     public void add_ball(Ball ball) {
         Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
 
-        if (ball.getParent() != null)
-            ball.getParent().removeActor(ball);
+        /*if (ball.getParent() != null && ball.getParent() != this) {
+            PlayArea parent = (PlayArea) ball.getParent();
+            parent.removeActor(ball);
+            parent.get_balls().removeValue(ball, false);
+        }*/
 
         Vector2 new_local_position = stageToLocalCoordinates(ball_world_position);
         ball.setPosition(new_local_position.x, new_local_position.y);
@@ -160,7 +174,11 @@ public class PlayArea extends BaseActor {
     }
 
 
-    private void remove_empty() {
+    public void remove_empty() {
+        if (!isCollisionEnabled)
+            return;
+
+        isCollisionEnabled = false;
         float duration = 1.5f;
         addAction(Actions.sequence(
             Actions.parallel(
