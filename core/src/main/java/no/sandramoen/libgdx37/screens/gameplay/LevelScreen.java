@@ -37,6 +37,7 @@ public class LevelScreen extends BaseScreen {
     private Array<Divider> dividers;
 
     private final int NUM_BALLS = 8;
+    private int balls_left = NUM_BALLS;
     private final float MAX_AREA_SIZE = 98f;
 
     private boolean is_discard_fulfillment = false;
@@ -89,23 +90,8 @@ public class LevelScreen extends BaseScreen {
         decrement_life(delta);
         check_remove_empty_areas();
 
-        if (play_areas.isEmpty()) {
-            is_game_over = true;
-            life_bar.addAction(Actions.fadeOut(1f));
-            life_bar.progress.addAction(Actions.fadeOut(1f));
-
-            float fulfillment_duration = 4f;
-            fulfillment_bar.addAction(Actions.sequence(
-                Actions.moveTo(fulfillment_bar.getX(), Gdx.graphics.getHeight() * 0.5f - fulfillment_bar.getHeight(), 0.5f * fulfillment_duration, Interpolation.fade),
-                Actions.parallel(
-                    Actions.fadeOut(fulfillment_duration),
-                    Actions.run(() -> {
-                        fulfillment_bar.progress.addAction(Actions.fadeOut(fulfillment_duration));
-                    })
-
-                )
-            ));
-        }
+        if (play_areas.isEmpty())
+            set_game_over();
 
         /*if (dividers.size == 1) {
             for (Divider divider : dividers) {
@@ -132,10 +118,12 @@ public class LevelScreen extends BaseScreen {
                         area.get_balls().removeValue(ball, false);
                         ball.remove_lost();
                         is_discard_fulfillment = true;
+                        balls_left -= 1;
+
+                        int percentage = (int)(life_bar.level * 0.25f);
+                        life_bar.decrementPercentage( percentage, 0.25f );
 
                         break;
-
-                        //System.out.println("is_discard_fulfillment = true");
                     }
                 }
             }
@@ -241,8 +229,10 @@ public class LevelScreen extends BaseScreen {
 
 
     private void handle_split(PlayArea area, PlayArea area_left, PlayArea area_right) {
+        area_left.setRotation(area.getRotation());
         validate_area(area_left);
         validate_area(area_right);
+        area_right.setRotation(area.getRotation());
         transfer_balls(area, area_left, area_right);
         area_clean_up(area);
     }
@@ -341,6 +331,27 @@ public class LevelScreen extends BaseScreen {
         int total_fulfillment = (int)(normalized * 100);
         int next_level = total_fulfillment - fulfillment_bar.level;
         fulfillment_bar.incrementPercentage(next_level, 1f);
+    }
+
+
+    private void set_game_over() {
+        is_game_over = true;
+
+        // life bar
+        life_bar.addAction(Actions.fadeOut(1f));
+        life_bar.progress.addAction(Actions.fadeOut(1f));
+
+        // fulfillment bar
+        float fulfillment_duration = 4f;
+        fulfillment_bar.addAction(Actions.sequence(
+            Actions.moveTo(fulfillment_bar.getX(), Gdx.graphics.getHeight() * 0.5f - fulfillment_bar.getHeight(), 0.5f * fulfillment_duration, Interpolation.fade),
+            Actions.parallel(
+                Actions.fadeOut(fulfillment_duration),
+                Actions.run(() -> {
+                    fulfillment_bar.progress.addAction(Actions.fadeOut(fulfillment_duration));
+                })
+            )
+        ));
     }
 
 

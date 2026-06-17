@@ -16,7 +16,7 @@ public class Ball extends BaseActor {
     public boolean is_bounced_vertical = false;
     public boolean is_bounced_horizontal = false;
 
-    private float speed = MathUtils.random(2.5f, 6.5f);
+    private float speed = MathUtils.random(1.25f, 3.25f);
     private float movementAcceleration = speed * 0.75f;
 
     public Ball(Stage stage, float x, float y) {

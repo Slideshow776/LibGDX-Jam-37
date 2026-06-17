@@ -19,8 +19,8 @@ public class PlayArea extends BaseActor {
 
     private Array<Ball> balls;
     private float size_increment = 0f;
-    private float size_frequency = 1f;
-    private float size_decrement_amount = 0.05f; //MathUtils.random(0.025f, 0.075f);
+    private final float size_frequency = 1f;
+    private final float size_decrement_amount = MathUtils.random(0.0125f, 0.05f);
 
     public PlayArea(Stage stage, float x, float y, float width, float height) {
         super(x, y, stage);
@@ -41,13 +41,11 @@ public class PlayArea extends BaseActor {
         addAction(Actions.sequence(
             Actions.delay(MathUtils.random(0f, 0.25f)),
             Actions.scaleTo(1.05f, 1.05f, duration * 0.5f, Interpolation.circleOut),
-            Actions.scaleTo(1f, 1f, duration, Interpolation.bounceOut)//,
-            /*Actions.run(() -> {
-                // heart rate animation
+            Actions.scaleTo(1f, 1f, duration, Interpolation.bounceOut),
+            Actions.delay(MathUtils.random(0.1f, 0.4f))/*,
+            Actions.run(() -> {
                 addAction(Actions.forever(Actions.sequence(
-                    Actions.scaleTo(1.005f, 1.005f, 0.2f, Interpolation.exp10Out),
-                    Actions.scaleTo(1f, 1f, 0.8f, Interpolation.bounceOut),
-                    Actions.delay(0.4f)
+                    Actions.rotateBy(MathUtils.random(-5f, 5f), 1f)
                 )));
             })*/
         ));
