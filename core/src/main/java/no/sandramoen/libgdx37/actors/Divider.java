@@ -3,6 +3,7 @@ package no.sandramoen.libgdx37.actors;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Align;
 
 import no.sandramoen.libgdx37.utils.BaseActor;
@@ -26,6 +27,7 @@ public class Divider extends BaseActor {
         super(position.x, position.y, stage);
 
         loadImage("whitePixel");
+        setTouchable(Touchable.disabled);
 
         // body
         setSize(SIZE, SIZE);

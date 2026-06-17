@@ -68,6 +68,14 @@ public class GameUtils {
         setAllMusicVolumes(volume);
     }
 
+    public static boolean isAnyMusicPlaying() {
+        for (Music music : AssetLoader.music) {
+            if (music.isPlaying())
+                return true;
+        }
+        return false;
+    }
+
     private static void setAllMusicVolumes(float volume) {
         for (Music music : no.sandramoen.libgdx37.utils.AssetLoader.music)
             music.setVolume(volume);

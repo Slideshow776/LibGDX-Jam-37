@@ -4,12 +4,14 @@ import static net.dermetfan.gdx.scenes.scene2d.Scene2DUtils.stageToLocalCoordina
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -26,6 +28,7 @@ import no.sandramoen.libgdx37.actors.particles.EffectBurst;
 import no.sandramoen.libgdx37.gui.BaseProgressBar;
 import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
+import no.sandramoen.libgdx37.utils.BaseGame;
 import no.sandramoen.libgdx37.utils.BaseScreen;
 import no.sandramoen.libgdx37.utils.GameUtils;
 
@@ -58,21 +61,24 @@ public class LevelScreen extends BaseScreen {
     @Override
     public void initialize() {
         // audio
-        /*AssetLoader.ambianceMusic.setLooping(true);
-        AssetLoader.ambianceMusic.setPosition(MathUtils.random(0f, 40f));
-        AssetLoader.ambianceMusic.setVolume(BaseGame.musicVolume);
-        AssetLoader.ambianceMusic.play();*/
+        AssetLoader.dividerMusic.setVolume(BaseGame.soundVolume);
 
         // actors
         background = new Background(mainStage);
 
         play_areas = new Array<PlayArea>();
         play_areas.add(new PlayArea(mainStage, 1, 1.25f, 14, 7));
-        for (PlayArea area : play_areas) {
-            for (int i = 0; i < NUM_BALLS; i++) {
-                area.spawn_ball();
-            }
-        }
+
+        mainStage.addAction(Actions.sequence(
+            Actions.delay(0.75f),
+            Actions.run(() -> {
+                for (PlayArea area : play_areas) {
+                    for (int i = 0; i < NUM_BALLS; i++) {
+                        area.spawn_ball(i);
+                    }
+                }
+            })
+        ));
 
         dividers = new Array<Divider>();
 
@@ -87,11 +93,23 @@ public class LevelScreen extends BaseScreen {
         if (is_game_over)
             return;
 
+        if (!GameUtils.isAnyMusicPlaying())
+            play_random_music();
+
         decrement_life(delta);
         check_remove_empty_areas();
 
         if (play_areas.isEmpty())
             set_game_over();
+
+        for (PlayArea area : play_areas) {
+            if (area.is_ready_to_remove) {
+                area.remove_split();
+
+                //for (int i = 0; i < MathUtils.random(1, 3); i++)
+                spawn_new_area();
+            }
+        }
 
         /*if (dividers.size == 1) {
             for (Divider divider : dividers) {
@@ -181,16 +199,25 @@ public class LevelScreen extends BaseScreen {
         }
 
         // dividers
-        for (PlayArea area : play_areas) {
-            if (area.contains(world_position) && dividers.size == 0) {
-                is_discard_fulfillment = false;
-                //System.out.println("is_discard_fulfillment = false");
-                create_dividers(world_position, area);
-                break;
-            }
+
+        Actor hit = mainStage.hit(world_position.x, world_position.y, true);
+        if (hit == null || !(hit instanceof PlayArea)) {
+            return super.touchDown(screenX, screenY, pointer, button);
+        }
+
+        if (dividers.size == 0) {
+            is_discard_fulfillment = false;
+            create_dividers(world_position, (PlayArea) hit);
         }
 
         return super.touchDown(screenX, screenY, pointer, button);
+    }
+
+
+    private void play_random_music() {
+        Music music = AssetLoader.music.random();
+        music.setVolume(BaseGame.musicVolume);
+        music.play();
     }
 
 
@@ -211,6 +238,7 @@ public class LevelScreen extends BaseScreen {
             dividers.add(divider_down);
         }
         area.is_being_divided = true;
+        AssetLoader.dividerMusic.play();
     }
 
 
@@ -235,6 +263,7 @@ public class LevelScreen extends BaseScreen {
         area_right.setRotation(area.getRotation());
         transfer_balls(area, area_left, area_right);
         area_clean_up(area);
+        AssetLoader.dividerMusic.stop();
     }
 
 
@@ -262,6 +291,8 @@ public class LevelScreen extends BaseScreen {
                 ball.remove();
             }
         }
+        area_left.is_ready = true;
+        area_right.is_ready = true;
     }
 
 
@@ -274,6 +305,9 @@ public class LevelScreen extends BaseScreen {
 
     private void check_remove_empty_areas() {
         for (PlayArea area : play_areas) {
+            if (!area.is_ready)
+                continue;
+
             if (!area.isCollisionEnabled)
                 play_areas.removeValue(area, false);
 
@@ -286,6 +320,28 @@ public class LevelScreen extends BaseScreen {
                 }
             }
         }
+    }
+
+
+    private void spawn_new_area() {
+        float min = 0.5f;
+        float width = MathUtils.random(4, 6);
+        float x_pos = MathUtils.random(min, BaseGame.WORLD_WIDTH - min - width);
+
+        float height = MathUtils.random(4, 6);
+        float y_pos = MathUtils.random(min, BaseGame.WORLD_HEIGHT - min - height);
+
+        PlayArea area = new PlayArea(mainStage, x_pos, y_pos, width, height);
+        play_areas.add(area);
+
+        mainStage.addAction(Actions.sequence(
+            Actions.delay(MathUtils.random(0.5f, 1f)),
+            Actions.run(() -> {
+                for (int i = 0; i < MathUtils.random(1, NUM_BALLS); i++) {
+                    area.spawn_ball(i);
+                }
+            })
+        ));
     }
 
 
@@ -336,6 +392,7 @@ public class LevelScreen extends BaseScreen {
 
     private void set_game_over() {
         is_game_over = true;
+        AssetLoader.game_over_sound.play(BaseGame.soundVolume);
 
         // life bar
         life_bar.addAction(Actions.fadeOut(1f));
@@ -349,6 +406,7 @@ public class LevelScreen extends BaseScreen {
                 Actions.fadeOut(fulfillment_duration),
                 Actions.run(() -> {
                     fulfillment_bar.progress.addAction(Actions.fadeOut(fulfillment_duration));
+                    GameUtils.stopAllMusic();
                 })
             )
         ));

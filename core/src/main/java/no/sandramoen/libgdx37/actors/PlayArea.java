@@ -4,23 +4,28 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 
+import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
+import no.sandramoen.libgdx37.utils.BaseGame;
 import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class PlayArea extends BaseActor {
 
-    public float min_area_size = 2f;
+    public float min_area_size = 4.4f;
+    public boolean is_ready_to_remove = false;
 
+    public boolean is_ready = false;
     public boolean is_being_divided = false;
 
     private Array<Ball> balls;
     private float size_increment = 0f;
-    private final float size_frequency = 1f;
-    private final float size_decrement_amount = MathUtils.random(0.0125f, 0.05f);
+    private float size_frequency = 1f;
+    private float size_decrement_amount = MathUtils.random(0.0125f, 0.05f);
 
     public PlayArea(Stage stage, float x, float y, float width, float height) {
         super(x, y, stage);
@@ -42,12 +47,12 @@ public class PlayArea extends BaseActor {
             Actions.delay(MathUtils.random(0f, 0.25f)),
             Actions.scaleTo(1.05f, 1.05f, duration * 0.5f, Interpolation.circleOut),
             Actions.scaleTo(1f, 1f, duration, Interpolation.bounceOut),
-            Actions.delay(MathUtils.random(0.1f, 0.4f))/*,
+            Actions.delay(MathUtils.random(0.1f, 0.4f)),
             Actions.run(() -> {
                 addAction(Actions.forever(Actions.sequence(
                     Actions.rotateBy(MathUtils.random(-5f, 5f), 1f)
                 )));
-            })*/
+            })
         ));
     }
 
@@ -56,16 +61,21 @@ public class PlayArea extends BaseActor {
     public void act(float delta) {
         super.act(delta);
 
-        if (size_increment >= size_frequency) {
+        /*if (size_increment >= size_frequency) {
             size_increment = 0f;
-            if (get_area_size() > min_area_size * size_decrement_amount)
+            if (get_area_size() > min_area_size * size_decrement_amount) {
                 addAction(Actions.parallel(
-                    Actions.sizeTo(getWidth() - size_decrement_amount, getHeight() - size_decrement_amount, size_frequency),
-                    Actions.moveBy(size_decrement_amount / 2f, size_decrement_amount / 2f, size_frequency)
+                    Actions.sizeTo(getWidth() - size_decrement_amount, getHeight() - size_decrement_amount, size_frequency)*//*,
+                    Actions.moveBy(size_decrement_amount / 2f, size_decrement_amount / 2f, size_frequency)*//*
                 ));
+                size_decrement_amount += 0.005f;
+            }
+            else {
+                is_ready_to_remove = true;
+            }
         } else {
             size_increment += delta;
-        }
+        }*/
 
         setBoundaryRectangle(1f);
 
@@ -109,6 +119,7 @@ public class PlayArea extends BaseActor {
         if (!balls.isEmpty())
             System.out.println("balls not empty!");
 
+        setTouchable(Touchable.disabled);
         isCollisionEnabled = false;
         balls.clear();
         return super.remove();
@@ -120,6 +131,7 @@ public class PlayArea extends BaseActor {
             return;
 
         isCollisionEnabled = false;
+        setTouchable(Touchable.disabled);
         remove();
         /*setZIndex(1);
         float duration = 1.1f;
@@ -144,13 +156,20 @@ public class PlayArea extends BaseActor {
     }
 
 
-    public void spawn_ball() {
-        Ball ball =  new Ball(
-            getStage(),
-            MathUtils.random(0f, getWidth()),
-            MathUtils.random(0f, getHeight())
-        );
-        add_ball(ball);
+    public void spawn_ball(int index) {
+        addAction(Actions.sequence(
+            Actions.delay(0.2f * index),
+            Actions.run(() -> {
+                Ball ball =  new Ball(
+                    getStage(),
+                    MathUtils.random(0f, getWidth()),
+                    MathUtils.random(0f, getHeight())
+                );
+                add_ball(ball);
+                is_ready = true;
+                AssetLoader.ball_spawn.play(BaseGame.soundVolume, 1f + (float) (index / 5f), 0);
+            })
+        ));
     }
 
 
@@ -183,6 +202,7 @@ public class PlayArea extends BaseActor {
         if (!isCollisionEnabled)
             return;
 
+        setTouchable(Touchable.disabled);
         isCollisionEnabled = false;
         float duration = 1.5f;
         addAction(Actions.sequence(

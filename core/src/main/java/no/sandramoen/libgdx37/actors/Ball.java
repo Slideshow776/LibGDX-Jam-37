@@ -5,9 +5,12 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.compression.lzma.Base;
 
+import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
 import no.sandramoen.libgdx37.utils.BaseGame;
 
@@ -24,6 +27,7 @@ public class Ball extends BaseActor {
 
         loadImage("whitePixel");
         setColor(Color.RED);
+        setTouchable(Touchable.disabled);
 
         // body
         setSize(0.25f, 0.25f);
@@ -34,13 +38,22 @@ public class Ball extends BaseActor {
 
         // movement
         setAcceleration(movementAcceleration);
-        setMaxSpeed(speed);
+        setMaxSpeed(speed * 10f);
         setDeceleration(movementAcceleration);
 
         velocityVec = new Vector2(
             MathUtils.random(-1f, 1f),
             MathUtils.random(-1f, 1f)
         );
+
+        setOrigin(Align.center);
+        addAction(Actions.sequence(
+            Actions.scaleTo(0f, 0f, 0f),
+            //Actions.delay(1f),
+            Actions.scaleTo(2.5f, 2.5f, 0.5f, Interpolation.bounceOut),
+            Actions.scaleTo(1.0f, 1.0f, 0.5f, Interpolation.bounceOut)
+        ));
+
     }
 
 
@@ -63,6 +76,7 @@ public class Ball extends BaseActor {
 
         isCollisionEnabled = false;
         float duration = 1.5f;
+        AssetLoader.ball_death.play(BaseGame.soundVolume, MathUtils.random(0.9f, 1.1f), 0f);
         addAction(Actions.sequence(
             Actions.parallel(
                 Actions.scaleTo(0.25f, 0.25f, duration, Interpolation.exp10Out),
@@ -74,16 +88,24 @@ public class Ball extends BaseActor {
     }
 
 
+    private void play_bounce_sound() {
+        AssetLoader.ball_bounce.play(BaseGame.soundVolume * 0.5f, 0.6f + speed / 4f, 0f);
+        speed += 0.01f;
+    }
+
+
     private void bounce_against_world_bounds() {
         // x
         if (getX() < 0) {
             setX(0f);
             velocityVec.x *= -1;
             squish_against_horizontal_bounds();
+            play_bounce_sound();
         } else if (getX() + getWidth() > worldBounds.width) {
             setX(worldBounds.width - getWidth());
             velocityVec.x *= -1;
             squish_against_horizontal_bounds();
+            play_bounce_sound();
         }
 
         // y
@@ -91,10 +113,12 @@ public class Ball extends BaseActor {
             setY(0f);
             velocityVec.y *= -1;
             squish_against_vertical_bounds();
-        }else if (getY() + getHeight() > worldBounds.height) {
+            play_bounce_sound();
+        } else if (getY() + getHeight() > worldBounds.height) {
             setY(worldBounds.height - getHeight());
             velocityVec.y *= -1;
             squish_against_vertical_bounds();
+            play_bounce_sound();
         }
     }
 
@@ -102,8 +126,10 @@ public class Ball extends BaseActor {
     private void squish_against_vertical_bounds() {
         is_bounced_horizontal = true;
         float duration = 0.25f * speed / 10;
+        float amount = speed / 5;
+        amount = MathUtils.clamp(amount, 0f, 0.5f);
         addAction(Actions.sequence(
-            Actions.scaleTo(1 + speed / 10, 1 - speed / 10, duration),
+            Actions.scaleTo(1 + amount, 1 - amount, duration),
             Actions.scaleTo(1f, 1f, duration)
         ));
     }
@@ -111,9 +137,11 @@ public class Ball extends BaseActor {
 
     private void squish_against_horizontal_bounds() {
         is_bounced_vertical = true;
-        float duration = 0.25f * speed / 10;
+        float duration = 0.25f * speed / 5;
+        float amount = speed / 5;
+        amount = MathUtils.clamp(amount, 0f, 0.5f);
         addAction(Actions.sequence(
-            Actions.scaleTo(1 - speed / 10, 1 + speed / 10, duration),
+            Actions.scaleTo(1 - amount, 1 + amount, duration),
             Actions.scaleTo(1f, 1f, duration)
         ));
     }

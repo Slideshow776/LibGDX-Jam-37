@@ -25,16 +25,20 @@ public class AssetLoader implements AssetErrorListener {
     public static String shockwaveShader;
     public static String backgroundShader;
 
-    public static Sound waterSound;
-    public static Sound coinSound;
-    public static Array<Sound> dogSounds;
-    public static Array<Sound> sheepSounds;
+    public static Sound ball_spawn;
+    public static Sound ball_death;
+    public static Sound ball_bounce;
+    public static Sound game_over_sound;
 
     public static Array<Music> music;
-    public static Music levelMusic;
-    public static Music ambianceMusic;
-    public static Music herdMusic;
-
+    public static Music oneMusic;
+    public static Music twoMusic;
+    public static Music threeMusic;
+    public static Music fourMusic;
+    public static Music fiveMusic;
+    public static Music sixMusic;
+    public static Music sevenMusic;
+    public static Music dividerMusic;
 
     static {
         long time = System.currentTimeMillis();
@@ -68,11 +72,23 @@ public class AssetLoader implements AssetErrorListener {
         no.sandramoen.libgdx37.utils.BaseGame.assetManager.load("images/included/packed/images.pack.atlas", TextureAtlas.class);
 
         // music
+        BaseGame.assetManager.load("audio/music/653724__josefpres__8-bit-game-loop-003-only-organ-short-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/music/653804__josefpres__8-bit-game-loop-004-only-organ-short-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/music/655083__josefpres__8-bit-game-loop-005-only-organ-long-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/music/655831__josefpres__8-bit-game-loop-007-simple-mix-1-short-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/music/656142__josefpres__8-bit-game-loop-008-simple-mix-1-short-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/music/657651__josefpres__8-bit-game-loop-010-simple-mix-4-long-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/music/655190__josefpres__8-bit-game-loop-006-only-organ-long-120-bpm.wav", Music.class);
+        BaseGame.assetManager.load("audio/sounds/dividers/464907__plasterbrain__8bit-fall.wav", Music.class);
         /*BaseGame.assetManager.load("audio/music/697045__gadesound__ambgras-tascamx8_meadow_kl_gades_tascamx8-0001.wav", Music.class);
-        BaseGame.assetManager.load("audio/music/herdAmbiance.wav", Music.class);
         BaseGame.assetManager.load("audio/music/106570__robinhood76__02224-scottish-pipes-march.mp3", Music.class);*/
 
         // sounds
+        BaseGame.assetManager.load("audio/sounds/442127__euphrosyyn__8-bit-game-over.wav", Sound.class);
+        BaseGame.assetManager.load("audio/sounds/balls/ball_death.wav", Sound.class);
+        BaseGame.assetManager.load("audio/sounds/balls/ball_spawn.wav", Sound.class);
+        BaseGame.assetManager.load("audio/sounds/balls/ball_bounce.wav", Sound.class);
+
         /*for (int i = 0; i <= 4; i++)
             BaseGame.assetManager.load("audio/sounds/sheep/" + i + ".wav", Sound.class);*/
 
@@ -101,11 +117,28 @@ public class AssetLoader implements AssetErrorListener {
 
         // music
         music = new Array();
-        //levelMusic = BaseGame.assetManager.get("audio/music/744138__thelastoneonearth__epic-middle-east-theme.ogg", Music.class);
-        //music.add(levelMusic);
-        //levelMusic = BaseGame.assetManager.get("audio/music/106570__robinhood76__02224-scottish-pipes-march.mp3", Music.class);
+        oneMusic = BaseGame.assetManager.get("audio/music/653724__josefpres__8-bit-game-loop-003-only-organ-short-120-bpm.wav", Music.class);
+        music.add(oneMusic);
+        twoMusic = BaseGame.assetManager.get("audio/music/653804__josefpres__8-bit-game-loop-004-only-organ-short-120-bpm.wav", Music.class);
+        music.add(twoMusic);
+        threeMusic = BaseGame.assetManager.get("audio/music/655083__josefpres__8-bit-game-loop-005-only-organ-long-120-bpm.wav", Music.class);
+        music.add(threeMusic);
+        fourMusic = BaseGame.assetManager.get("audio/music/655831__josefpres__8-bit-game-loop-007-simple-mix-1-short-120-bpm.wav", Music.class);
+        music.add(fourMusic);
+        fiveMusic = BaseGame.assetManager.get("audio/music/656142__josefpres__8-bit-game-loop-008-simple-mix-1-short-120-bpm.wav", Music.class);
+        music.add(fiveMusic);
+        sixMusic = BaseGame.assetManager.get("audio/music/657651__josefpres__8-bit-game-loop-010-simple-mix-4-long-120-bpm.wav", Music.class);
+        music.add(sixMusic);
+        sevenMusic = BaseGame.assetManager.get("audio/music/655190__josefpres__8-bit-game-loop-006-only-organ-long-120-bpm.wav", Music.class);
+        music.add(sevenMusic);
+
+        dividerMusic = BaseGame.assetManager.get("audio/sounds/dividers/464907__plasterbrain__8bit-fall.wav", Music.class);
 
         // sounds
+        ball_death = BaseGame.assetManager.get("audio/sounds/balls/ball_death.wav", Sound.class);
+        ball_spawn = BaseGame.assetManager.get("audio/sounds/balls/ball_spawn.wav", Sound.class);
+        ball_bounce = BaseGame.assetManager.get("audio/sounds/balls/ball_bounce.wav", Sound.class);
+        game_over_sound = BaseGame.assetManager.get("audio/sounds/442127__euphrosyyn__8-bit-game-over.wav", Sound.class);
         /*for (int i = 0; i <= 4; i++)
             sheepSounds.add(BaseGame.assetManager.get("audio/sounds/sheep/" + i + ".wav", Sound.class));*/
 
