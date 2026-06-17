@@ -111,14 +111,6 @@ public class LevelScreen extends BaseScreen {
             }
         }
 
-        /*if (dividers.size == 1) {
-            for (Divider divider : dividers) {
-                divider.remove();
-                dividers.clear();
-            }
-            return;
-        }*/
-
         boolean is_both_stopped = true;
         for (Divider divider : dividers) {
             if (divider.is_growing)
@@ -130,9 +122,6 @@ public class LevelScreen extends BaseScreen {
 
                 for (Ball ball : area.get_balls()) {
                     if (ball.overlaps(divider)) {
-                        /*dividers.removeValue(divider, false);
-                        divider.remove();*/
-
                         area.get_balls().removeValue(ball, false);
                         ball.remove_lost();
                         is_discard_fulfillment = true;
@@ -283,13 +272,13 @@ public class LevelScreen extends BaseScreen {
 
             if (area_left.contains(ball_world_position)) {
                 area_left.add_ball(ball);
-            } else if (area_right.contains(ball_world_position)) {
+            } else {// if (area_right.contains(ball_world_position)) {
                 area_right.add_ball(ball);
-            } else {
+            }/* else {
                 Ball temp = new Ball(mainStage, ball_world_position.x, ball_world_position.y);
                 temp.remove_lost();
                 ball.remove();
-            }
+            }*/
         }
         area_left.is_ready = true;
         area_right.is_ready = true;
@@ -325,10 +314,10 @@ public class LevelScreen extends BaseScreen {
 
     private void spawn_new_area() {
         float min = 0.5f;
-        float width = MathUtils.random(4, 6);
+        float width = MathUtils.random(2, 5);
         float x_pos = MathUtils.random(min, BaseGame.WORLD_WIDTH - min - width);
 
-        float height = MathUtils.random(4, 6);
+        float height = MathUtils.random(2, 5);
         float y_pos = MathUtils.random(min, BaseGame.WORLD_HEIGHT - min - height);
 
         PlayArea area = new PlayArea(mainStage, x_pos, y_pos, width, height);
@@ -337,7 +326,7 @@ public class LevelScreen extends BaseScreen {
         mainStage.addAction(Actions.sequence(
             Actions.delay(MathUtils.random(0.5f, 1f)),
             Actions.run(() -> {
-                for (int i = 0; i < MathUtils.random(1, NUM_BALLS); i++) {
+                for (int i = 0; i < MathUtils.random(1, MathUtils.ceil(NUM_BALLS / 2f)); i++) {
                     area.spawn_ball(i);
                 }
             })

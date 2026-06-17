@@ -61,21 +61,21 @@ public class PlayArea extends BaseActor {
     public void act(float delta) {
         super.act(delta);
 
-        /*if (size_increment >= size_frequency) {
+        if (size_increment >= size_frequency) {
             size_increment = 0f;
             if (get_area_size() > min_area_size * size_decrement_amount) {
                 addAction(Actions.parallel(
-                    Actions.sizeTo(getWidth() - size_decrement_amount, getHeight() - size_decrement_amount, size_frequency)*//*,
-                    Actions.moveBy(size_decrement_amount / 2f, size_decrement_amount / 2f, size_frequency)*//*
+                    Actions.sizeTo(getWidth() - size_decrement_amount, getHeight() - size_decrement_amount, size_frequency)/*,
+                    Actions.moveBy(size_decrement_amount / 2f, size_decrement_amount / 2f, size_frequency)*/
                 ));
-                size_decrement_amount += 0.005f;
+                size_decrement_amount += 0.00035f;
             }
             else {
                 is_ready_to_remove = true;
             }
         } else {
             size_increment += delta;
-        }*/
+        }
 
         setBoundaryRectangle(1f);
 
