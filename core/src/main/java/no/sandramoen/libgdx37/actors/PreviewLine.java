@@ -50,7 +50,7 @@ public class PreviewLine extends BaseActor {
             is_horizontal = true;
             setScaleX(area.getWidth());
             setHeight(0.25f);
-            setX(area.getWidth() * 0.5f);
+            setX(0);
             setOrigin(Align.left);
         } else if (going == Going.DOWN) {
             setScaleY(area.getHeight());

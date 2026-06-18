@@ -182,6 +182,7 @@ public class LevelScreen extends BaseScreen {
                 set_horizontal_cursor();
             else
                 set_vertical_cursor();
+            mouseMoved(screenX, screenY);
             return super.touchDown(screenX, screenY, pointer, button);
         }
 
