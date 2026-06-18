@@ -20,10 +20,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TextraLabel;
 
-import no.sandramoen.libgdx37.actors.Background;
-import no.sandramoen.libgdx37.actors.Ball;
-import no.sandramoen.libgdx37.actors.Divider;
-import no.sandramoen.libgdx37.actors.PlayArea;
+import no.sandramoen.libgdx37.actors.*;
 import no.sandramoen.libgdx37.actors.particles.EffectBurst;
 import no.sandramoen.libgdx37.gui.BaseProgressBar;
 import no.sandramoen.libgdx37.utils.AssetLoader;
@@ -38,6 +35,7 @@ public class LevelScreen extends BaseScreen {
     private Background background;
     private Array<PlayArea> play_areas;
     private Array<Divider> dividers;
+    private Array<PreviewLine> previews;
 
     private final int NUM_BALLS = 8;
     private int balls_left = NUM_BALLS;
@@ -80,8 +78,8 @@ public class LevelScreen extends BaseScreen {
             })
         ));
 
-        dividers = new Array<Divider>();
-
+        dividers = new Array<>();
+        previews = new Array<>();
         set_vertical_cursor();
 
         initialize_gui();
@@ -202,6 +200,15 @@ public class LevelScreen extends BaseScreen {
         return super.touchDown(screenX, screenY, pointer, button);
     }
 
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        Vector2 world_position = mainStage.screenToStageCoordinates(new Vector2(screenX, screenY));
+        Actor hit = mainStage.hit(world_position.x, world_position.y, true);
+        if(hit instanceof PlayArea){
+            create_preview(world_position, (PlayArea) hit);
+        }
+        return false;
+    }
 
     private void play_random_music() {
         Music music = AssetLoader.music.random();
@@ -228,6 +235,21 @@ public class LevelScreen extends BaseScreen {
         }
         area.is_being_divided = true;
         AssetLoader.dividerMusic.play();
+    }
+
+    private void create_preview(Vector2 world_position, PlayArea area) {
+        for(PreviewLine p : previews)
+            p.remove();
+        previews.clear();
+        if (is_division_horizontal) {
+            PreviewLine divider_right = new PreviewLine(mainStage, world_position, area, PreviewLine.Going.RIGHT);
+            area.addActor(divider_right);
+            previews.add(divider_right);
+        } else {
+            PreviewLine divider_up   = new PreviewLine(mainStage, world_position, area, PreviewLine.Going.UP);
+            area.addActor(divider_up);
+            previews.add(divider_up);
+        }
     }
 
 
