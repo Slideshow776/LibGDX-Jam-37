@@ -7,10 +7,12 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Align;
 
 import no.sandramoen.libgdx37.utils.BaseActor;
+import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class PreviewLine extends BaseActor {
 
     public static final float SIZE = 1f;
+
     public enum Going {
          UP,
          RIGHT,
@@ -18,60 +20,77 @@ public class PreviewLine extends BaseActor {
          LEFT
     }
     public boolean is_horizontal = false;
+    public float ORIGINAL_OPACITY = 0f;
 
     private Going going;
+    private PlayArea area;
 
     public PreviewLine(Stage stage, Vector2 position, PlayArea area, Going going) {
         super(position.x, position.y, stage);
+
+        this.area = area;
 
         loadImage("whitePixel");
         setTouchable(Touchable.disabled);
 
         // body
-        setSize(SIZE, SIZE);
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
         Vector2 divider_world_position = localToStageCoordinates(new Vector2());
         Vector2 new_local_position = area.stageToLocalCoordinates(divider_world_position);
         setPosition(
-            new_local_position.x - getWidth() * 0.8f,
-            new_local_position.y - getHeight() * 0.2f
+            new_local_position.x - getWidth() * 3f,
+            new_local_position.y - getHeight() * 0.1f
         );
 
         //setDebug(true);
         this.going = going;
-        if (going == Going.UP) {
-            setScaleY(area.getHeight());
-            setWidth(0.25f);
-            setY(0);
-            setOrigin(Align.bottom);
-        } else if (going == Going.RIGHT) {
-            is_horizontal = true;
-            setScaleX(area.getWidth());
-            setHeight(0.25f);
-            setX(0);
-            setOrigin(Align.left);
-        } else if (going == Going.DOWN) {
-            setScaleY(area.getHeight());
-            setWidth(0.25f);
-            setY(0);
-            setOrigin(Align.bottom);
-        } else if (going == Going.LEFT) {
-            is_horizontal = true;
-            setScaleX(area.getWidth());
-            setHeight(0.25f);
-            setX(0);
-            setOrigin(Align.left);
-        }
+
         setWorldBounds(area);
-        setColor(0.7f, 0.7f, 0.7f, 0.5f); // transparent light gray
-        isCollisionEnabled = false;
+
+        // colour
+        float hue_shift_amount = 360f * 0.32f;
+        Color shifted_colour = GameUtils.hueShiftedColor(area.getColor(), hue_shift_amount);
+
+        ORIGINAL_OPACITY = 0.5f;
+        shifted_colour.set(
+            shifted_colour.r * 0.25f,
+            shifted_colour.g * 0.25f,
+            shifted_colour.b * 0.25f,
+            ORIGINAL_OPACITY
+        );
+
+        setColor(shifted_colour);
     }
 
 
     @Override
     public void act(float delta) {
         super.act(delta);
+
+        if (area.is_being_divided)
+            setOpacity(0f);
+
+        if (going == Going.UP) {
+            setSize(Divider.SIZE, area.getHeight());
+            setY(0);
+            setOrigin(Align.bottom);
+        } else if (going == Going.RIGHT) {
+            is_horizontal = true;
+            setSize(area.getWidth(), Divider.SIZE);
+            setX(0);
+            setOrigin(Align.left);
+        } else if (going == Going.DOWN) {
+            setSize(Divider.SIZE, area.getHeight());
+            setY(0);
+            setOrigin(Align.bottom);
+        } else if (going == Going.LEFT) {
+            is_horizontal = true;
+            setSize(area.getWidth(), Divider.SIZE);
+            setX(0);
+            setOrigin(Align.left);
+        }
+        //setWorldBounds(area);
     }
 }

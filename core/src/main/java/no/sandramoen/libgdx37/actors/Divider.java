@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Align;
 
 import no.sandramoen.libgdx37.utils.BaseActor;
+import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class Divider extends BaseActor {
 
@@ -46,20 +47,32 @@ public class Divider extends BaseActor {
 
         this.going = going;
         if (going == Going.UP) {
-            setColor(Color.GOLDENROD);
             setOrigin(Align.bottom);
+            //setColor(Color.GOLDENROD);
         } else if (going == Going.RIGHT) {
             is_horizontal = true;
             setOrigin(Align.left);
-            setColor(Color.FOREST);
+            //setColor(Color.FOREST);
         } else if (going == Going.DOWN) {
             setOrigin(Align.top);
-            setColor(Color.BLUE);
+            //setColor(Color.BLUE);
         } else if (going == Going.LEFT) {
             is_horizontal = true;
             setOrigin(Align.right);
-            setColor(Color.OLIVE);
+            //setColor(Color.OLIVE);
         }
+
+        // color
+        float hue_shift_amount = 360f * -0.32f;
+        Color shifted_colour = GameUtils.hueShiftedColor(area.getColor(), hue_shift_amount);
+        setColor(shifted_colour);
+
+        setColor(
+            getColor().r * 1.5f,
+            getColor().g * 1.5f,
+            getColor().b * 1.5f,
+            1f
+        );
     }
 
 

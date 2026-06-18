@@ -29,6 +29,8 @@ public class AssetLoader implements AssetErrorListener {
     public static Sound ball_death;
     public static Sound ball_bounce;
     public static Sound game_over_sound;
+    public static Sound area_lost;
+    public static Sound area_gained;
 
     public static Array<Music> music;
     public static Music oneMusic;
@@ -88,6 +90,8 @@ public class AssetLoader implements AssetErrorListener {
         BaseGame.assetManager.load("audio/sounds/balls/ball_death.wav", Sound.class);
         BaseGame.assetManager.load("audio/sounds/balls/ball_spawn.wav", Sound.class);
         BaseGame.assetManager.load("audio/sounds/balls/ball_bounce.wav", Sound.class);
+        BaseGame.assetManager.load("audio/sounds/areas/558735__samsterbirdies__8-bit-fail.wav", Sound.class);
+        BaseGame.assetManager.load("audio/sounds/areas/511385__mrthenoronha__power-up-8-bit.wav", Sound.class);
 
         /*for (int i = 0; i <= 4; i++)
             BaseGame.assetManager.load("audio/sounds/sheep/" + i + ".wav", Sound.class);*/
@@ -139,6 +143,8 @@ public class AssetLoader implements AssetErrorListener {
         ball_spawn = BaseGame.assetManager.get("audio/sounds/balls/ball_spawn.wav", Sound.class);
         ball_bounce = BaseGame.assetManager.get("audio/sounds/balls/ball_bounce.wav", Sound.class);
         game_over_sound = BaseGame.assetManager.get("audio/sounds/442127__euphrosyyn__8-bit-game-over.wav", Sound.class);
+        area_gained = BaseGame.assetManager.get("audio/sounds/areas/511385__mrthenoronha__power-up-8-bit.wav", Sound.class);
+        area_lost = BaseGame.assetManager.get("audio/sounds/areas/558735__samsterbirdies__8-bit-fail.wav", Sound.class);
         /*for (int i = 0; i <= 4; i++)
             sheepSounds.add(BaseGame.assetManager.get("audio/sounds/sheep/" + i + ".wav", Sound.class));*/
 

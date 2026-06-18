@@ -104,7 +104,6 @@ public class GameUtils {
     }
 
 
-
     public static float normalizeValue(float value, float min, float max) {
         return (value - min) / (max - min);
     }
@@ -121,19 +120,52 @@ public class GameUtils {
         return shaderProgram;
     }
 
-    public static Color randomLightColor() {
+    public static Color hueShiftedColor(Color colour, float hue_shift_amount) {
+        Color base_colour = colour;
+
+        // hue-saturation-value
+        float[] hsv = new float[3];
+        base_colour.toHsv(hsv);
+
+        // hue shift
+        hsv[0] = (hsv[0] + hue_shift_amount) % 360;
+        if (hsv[0] < 0f)
+            hsv[0] += 360f;
+
+        Color shifted_colour = new Color(base_colour);
+        shifted_colour.fromHsv(hsv);
+
+        return shifted_colour;
+    }
+
+    public static Color randomLightColdColor() { // changed for this project to be blue-ish
         float r = 0f;
         float g = 0f;
         float b = 0f;
         float threshold = 0.6f;
         while (r <= threshold && g <= threshold && b <= threshold) {
             r = MathUtils.random(0f, 0.5f);
+            g = MathUtils.random(threshold, 1f);
+            b = MathUtils.random(threshold, 1f);
+        }
+
+        return new Color(r, g, b, 1);
+    }
+
+
+    public static Color randomLightColor() {
+        float r = 0f;
+        float g = 0f;
+        float b = 0f;
+        while (r <= 0 && g <= 0 && b <= 0) {
+            r = MathUtils.random(0f, 1f);
             g = MathUtils.random(0f, 1f);
             b = MathUtils.random(0f, 1f);
         }
 
         return new Color(r, g, b, 1);
     }
+
 
     public static Object getNextItemOfLoopingArray(Array array, int index) {
         if (index >= array.size)

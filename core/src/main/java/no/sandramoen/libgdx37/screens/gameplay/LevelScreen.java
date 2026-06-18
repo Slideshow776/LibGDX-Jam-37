@@ -49,9 +49,12 @@ public class LevelScreen extends BaseScreen {
     private float life_increment = 0f;
     private float life_frequency = 1f;
 
+    private float ball_speed = 1f; // TODO: make the game harder and harder
+    private float area_shrink = 1f; // TODO
+
     private TextraLabel score_label;
-    private BaseProgressBar life_bar;
-    private BaseProgressBar fulfillment_bar;
+    /*private BaseProgressBar life_bar;
+    private BaseProgressBar fulfillment_bar;*/
 
     public LevelScreen() {}
 
@@ -72,7 +75,7 @@ public class LevelScreen extends BaseScreen {
             Actions.run(() -> {
                 for (PlayArea area : play_areas) {
                     for (int i = 0; i < NUM_BALLS; i++) {
-                        area.spawn_ball(i);
+                        area.spawn_ball(i, ball_speed);
                     }
                 }
             })
@@ -101,11 +104,24 @@ public class LevelScreen extends BaseScreen {
             set_game_over();
 
         for (PlayArea area : play_areas) {
-            if (area.is_ready_to_remove) {
-                area.remove_split();
 
-                //for (int i = 0; i < MathUtils.random(1, 3); i++)
-                spawn_new_area();
+            if (area.get_area_size() < 2.0f * area.min_area_size * area.size_decrement_amount) {
+                if (area.get_balls().size == 1) {
+                    area.set_gain_warning();
+                } else if (area.get_balls().size != 0) {
+                    area.set_fail_warning();
+                }
+            }
+
+            if (area.is_ready_to_remove) {
+                if (area.get_balls().size == 1) {
+                    spawn_new_area();
+                    AssetLoader.area_gained.play(BaseGame.soundVolume, MathUtils.random(0.8f, 1.2f), 0f);
+                } else {
+                    AssetLoader.area_lost.play(BaseGame.soundVolume, MathUtils.random(0.8f, 1.2f), 0f);
+                }
+
+                area.remove_split();
             }
         }
 
@@ -125,8 +141,8 @@ public class LevelScreen extends BaseScreen {
                         is_discard_fulfillment = true;
                         balls_left -= 1;
 
-                        int percentage = (int)(life_bar.level * 0.25f);
-                        life_bar.decrementPercentage( percentage, 0.25f );
+                        /*int percentage = (int)(life_bar.level * 0.25f);
+                        life_bar.decrementPercentage( percentage, 0.25f );*/
 
                         break;
                     }
@@ -205,11 +221,12 @@ public class LevelScreen extends BaseScreen {
     public boolean mouseMoved(int screenX, int screenY) {
         Vector2 world_position = mainStage.screenToStageCoordinates(new Vector2(screenX, screenY));
         Actor hit = mainStage.hit(world_position.x, world_position.y, true);
-        if(hit instanceof PlayArea){
+        if( hit instanceof PlayArea ){
             create_preview(world_position, (PlayArea) hit);
         }
         return false;
     }
+
 
     private void play_random_music() {
         Music music = AssetLoader.music.random();
@@ -238,18 +255,26 @@ public class LevelScreen extends BaseScreen {
         AssetLoader.dividerMusic.play();
     }
 
+
     private void create_preview(Vector2 world_position, PlayArea area) {
+        // purge
         for(PreviewLine p : previews)
             p.remove();
         previews.clear();
+
+        // create
         if (is_division_horizontal) {
             PreviewLine divider_right = new PreviewLine(mainStage, world_position, area, PreviewLine.Going.RIGHT);
             area.addActor(divider_right);
+            area.previewLine = divider_right;
             previews.add(divider_right);
-        } else {
-            PreviewLine divider_up   = new PreviewLine(mainStage, world_position, area, PreviewLine.Going.UP);
+            divider_right.setZIndex(0);
+        } else { // vertical
+            PreviewLine divider_up = new PreviewLine(mainStage, world_position, area, PreviewLine.Going.UP);
             area.addActor(divider_up);
+            area.previewLine = divider_up;
             previews.add(divider_up);
+            divider_up.setZIndex(0);
         }
     }
 
@@ -276,6 +301,9 @@ public class LevelScreen extends BaseScreen {
         transfer_balls(area, area_left, area_right);
         area_clean_up(area);
         AssetLoader.dividerMusic.stop();
+
+        area_right.size_decrement_amount *= area_shrink;
+        area_left.size_decrement_amount *= area_shrink;
     }
 
 
@@ -294,9 +322,9 @@ public class LevelScreen extends BaseScreen {
             Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
 
             if (area_left.contains(ball_world_position)) {
-                area_left.add_ball(ball);
+                area_left.add_ball(ball, ball_speed);
             } else {// if (area_right.contains(ball_world_position)) {
-                area_right.add_ball(ball);
+                area_right.add_ball(ball, ball_speed);
             }/* else {
                 Ball temp = new Ball(mainStage, ball_world_position.x, ball_world_position.y);
                 temp.remove_lost();
@@ -349,8 +377,10 @@ public class LevelScreen extends BaseScreen {
         mainStage.addAction(Actions.sequence(
             Actions.delay(MathUtils.random(0.5f, 1f)),
             Actions.run(() -> {
+                ball_speed *= 1.01f;
+                System.out.println("levelscreen => ball_speed: " + ball_speed);
                 for (int i = 0; i < MathUtils.random(1, MathUtils.ceil(NUM_BALLS / 2f)); i++) {
-                    area.spawn_ball(i);
+                    area.spawn_ball(i, ball_speed);
                 }
             })
         ));
@@ -363,7 +393,7 @@ public class LevelScreen extends BaseScreen {
 
         if (life_increment >= life_frequency) {
             life_increment = 0f;
-            life_bar.decrementPercentage(1, 2f);
+            //life_bar.decrementPercentage(1, 2f);
         } else {
             life_increment += delta;
         }
@@ -397,8 +427,8 @@ public class LevelScreen extends BaseScreen {
         area_split_and_lost += area_size;
         float normalized = GameUtils.normalizeValue(area_split_and_lost, 0f, MAX_AREA_SIZE);
         int total_fulfillment = (int)(normalized * 100);
-        int next_level = total_fulfillment - fulfillment_bar.level;
-        fulfillment_bar.incrementPercentage(next_level, 1f);
+        /*int next_level = total_fulfillment - fulfillment_bar.level;
+        fulfillment_bar.incrementPercentage(next_level, 1f);*/
     }
 
 
@@ -407,7 +437,7 @@ public class LevelScreen extends BaseScreen {
         AssetLoader.game_over_sound.play(BaseGame.soundVolume);
 
         // life bar
-        life_bar.addAction(Actions.fadeOut(1f));
+        /*life_bar.addAction(Actions.fadeOut(1f));
         life_bar.progress.addAction(Actions.fadeOut(1f));
 
         // fulfillment bar
@@ -421,13 +451,13 @@ public class LevelScreen extends BaseScreen {
                     GameUtils.stopAllMusic();
                 })
             )
-        ));
+        ));*/
     }
 
 
     private void initialize_gui() {
         // resources setup
-        life_bar = new BaseProgressBar(Gdx.graphics.getWidth() * .0325f, Gdx.graphics.getHeight() * 0.9725f, uiStage);
+        /*life_bar = new BaseProgressBar(Gdx.graphics.getWidth() * .0325f, Gdx.graphics.getHeight() * 0.9725f, uiStage);
         life_bar.setProgress(100);
         life_bar.set_color(Color.FIREBRICK);
         life_bar.setProgressBarColor(Color.PINK);
@@ -437,7 +467,7 @@ public class LevelScreen extends BaseScreen {
         fulfillment_bar.setProgress(0);
         fulfillment_bar.set_color(Color.BROWN);
         fulfillment_bar.setProgressBarColor(Color.GOLD);
-        uiStage.addActor(fulfillment_bar);
+        uiStage.addActor(fulfillment_bar);*/
 
         // ui setup
         uiTable.defaults()

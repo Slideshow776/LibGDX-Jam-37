@@ -1,8 +1,12 @@
 package no.sandramoen.libgdx37.actors;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -16,22 +20,24 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 
 public class PlayArea extends BaseActor {
 
-    public float min_area_size = 4.4f;
-    public boolean is_ready_to_remove = false;
-
     public boolean is_ready = false;
     public boolean is_being_divided = false;
+    public boolean is_ready_to_remove = false;
+    public float min_area_size = 4.4f;
+    public float size_decrement_amount = MathUtils.random(0.0125f, 0.05f);
+    public PreviewLine previewLine;
 
-    private Array<Ball> balls;
+    private boolean is_warning_given = false;
     private float size_increment = 0f;
     private float size_frequency = 1f;
-    private float size_decrement_amount = MathUtils.random(0.0125f, 0.05f);
+    private Array<Ball> balls;
+
 
     public PlayArea(Stage stage, float x, float y, float width, float height) {
         super(x, y, stage);
 
         loadImage("whitePixel");
-        setColor(GameUtils.randomLightColor());
+        setColor(GameUtils.randomLightColdColor());
 
         // body
         setSize(width, height);
@@ -54,6 +60,24 @@ public class PlayArea extends BaseActor {
                 )));
             })
         ));
+
+        addListener(new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                super.enter(event, x, y, pointer, fromActor);
+
+                if (previewLine != null)
+                    previewLine.addAction(Actions.alpha(previewLine.ORIGINAL_OPACITY, 0.1f));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                super.exit(event, x, y, pointer, toActor);
+
+                if (previewLine != null)
+                    previewLine.addAction(Actions.alpha(0f, 0.1f));
+            }
+        });
     }
 
 
@@ -126,6 +150,50 @@ public class PlayArea extends BaseActor {
     }
 
 
+    public void set_fail_warning() {
+        if (is_warning_given)
+            return;
+
+        is_warning_given = true;
+
+        Color original_color = getColor();
+        addAction(Actions.forever(Actions.sequence(
+            Actions.color(
+                new Color(
+                    1f,
+                    original_color.g * 0.5f,
+                    original_color.b * 0.5f,
+                    original_color.a
+                ),
+                0.1f
+            ),
+            Actions.color(original_color, 0.1f)
+        )));
+    }
+
+
+    public void set_gain_warning() {
+        if (is_warning_given)
+            return;
+
+        is_warning_given = true;
+
+        Color original_color = getColor();
+        addAction(Actions.forever(Actions.sequence(
+            Actions.color(
+                new Color(
+                    original_color.r * 0.5f,
+                    1f,
+                    original_color.b * 0.5f,
+                    original_color.a
+                ),
+                0.1f
+            ),
+            Actions.color(original_color, 0.1f)
+        )));
+    }
+
+
     public void remove_split() {
         if (!isCollisionEnabled)
             return;
@@ -156,16 +224,17 @@ public class PlayArea extends BaseActor {
     }
 
 
-    public void spawn_ball(int index) {
+    public void spawn_ball(int index, float game_speed) {
         addAction(Actions.sequence(
             Actions.delay(0.2f * index),
             Actions.run(() -> {
                 Ball ball =  new Ball(
                     getStage(),
                     MathUtils.random(0f, getWidth()),
-                    MathUtils.random(0f, getHeight())
+                    MathUtils.random(0f, getHeight()),
+                    Ball.ORIGINAL_SPEED * game_speed
                 );
-                add_ball(ball);
+                add_ball(ball, 1f);
                 is_ready = true;
                 AssetLoader.ball_spawn.play(BaseGame.soundVolume, 1f + (float) (index / 5f), 0);
             })
@@ -173,7 +242,7 @@ public class PlayArea extends BaseActor {
     }
 
 
-    public void add_ball(Ball ball) {
+    public void add_ball(Ball ball, float game_speed) {
         Vector2 ball_world_position = ball.localToStageCoordinates(new Vector2());
 
         /*if (ball.getParent() != null && ball.getParent() != this) {
@@ -185,15 +254,18 @@ public class PlayArea extends BaseActor {
         Vector2 new_local_position = stageToLocalCoordinates(ball_world_position);
         ball.setPosition(new_local_position.x, new_local_position.y);
 
+        ball.setSpeed(ball.getSpeed() * game_speed);
+        ball.setMaxSpeed(ball.getSpeed() * 10f);
+
         balls.add(ball);
         addActor(ball);
         ball.setWorldBounds(this);
     }
 
 
-    public void add_balls(Array<Ball> balls) {
+    public void add_balls(Array<Ball> balls, float game_speed) {
         for (Ball ball : balls) {
-            add_ball(ball);
+            add_ball(ball, game_speed);
         }
     }
 

@@ -15,27 +15,36 @@ import no.sandramoen.libgdx37.utils.BaseGame;
 
 public class Ball extends BaseActor {
 
+    public static final float ORIGINAL_SPEED = MathUtils.random(1.25f, 3.25f);
+
     public boolean is_bounced_vertical = false;
     public boolean is_bounced_horizontal = false;
 
-    private float speed = MathUtils.random(1.25f, 3.25f);
+    private float speed = ORIGINAL_SPEED;
     private float movementAcceleration = speed * 0.75f;
 
-    public Ball(Stage stage, float x, float y) {
+    public Ball(Stage stage, float x, float y, float speed) {
         super(x, y, stage);
 
         loadImage("whitePixel");
-        setColor(Color.RED);
+        setColor(
+            MathUtils.random(1f, 1f),
+            MathUtils.random(0f, 0.3f),
+            MathUtils.random(0f, 0.3f),
+            1f
+        );
         setTouchable(Touchable.disabled);
 
         // body
-        setSize(0.25f, 0.25f);
+        float random_size = MathUtils.random(0.2f, 0.3f);
+        setSize(random_size, random_size);
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
         //setDebug(true);
 
         // movement
+        this.speed = speed;
         setAcceleration(movementAcceleration);
         setMaxSpeed(speed * 10f);
         setDeceleration(movementAcceleration);
