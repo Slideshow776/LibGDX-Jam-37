@@ -1,28 +1,19 @@
 package no.sandramoen.libgdx37.screens.gameplay;
 
-import static net.dermetfan.gdx.scenes.scene2d.Scene2DUtils.stageToLocalCoordinates;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.github.tommyettinger.textra.TextraLabel;
 
 import no.sandramoen.libgdx37.actors.*;
 import no.sandramoen.libgdx37.actors.particles.EffectBurst;
-import no.sandramoen.libgdx37.gui.BaseProgressBar;
 import no.sandramoen.libgdx37.utils.AssetLoader;
 import no.sandramoen.libgdx37.utils.BaseActor;
 import no.sandramoen.libgdx37.utils.BaseGame;
@@ -49,7 +40,7 @@ public class LevelScreen extends BaseScreen {
     private float life_increment = 0f;
     private float life_frequency = 1f;
 
-    private float ball_speed = 1f; // TODO: make the game harder and harder
+    private float ball_speed = 1f; // TODO: make the game harder and harder...
     private float area_shrink = 1f; // TODO
 
     private TextraLabel score_label;
@@ -68,7 +59,7 @@ public class LevelScreen extends BaseScreen {
         background = new Background(mainStage);
 
         play_areas = new Array<PlayArea>();
-        play_areas.add(new PlayArea(mainStage, 1, 1.25f, 14, 7));
+        play_areas.add(new PlayArea(mainStage, 1, 1.25f, 14, 7, 0f));
 
         mainStage.addAction(Actions.sequence(
             Actions.delay(0.75f),
@@ -280,15 +271,48 @@ public class LevelScreen extends BaseScreen {
 
 
     private void split_area_horizontally(PlayArea area, float divider_Y) {
-        PlayArea area_left = new PlayArea(mainStage, area.getX(), area.getY(), area.getWidth(), divider_Y);
-        PlayArea area_right = new PlayArea(mainStage, area.getX(), area.getY() + divider_Y + Divider.SIZE, area.getWidth(), area.getHeight() - divider_Y - Divider.SIZE);
+        PlayArea area_left = new PlayArea(
+            mainStage,
+            area.getX(),
+            area.getY(),
+            area.getWidth(),
+            divider_Y,
+            area.getRotation()
+        );
+
+        PlayArea area_right = new PlayArea(
+            mainStage,
+            area.getX(),
+            area.getY() + divider_Y + Divider.SIZE,
+            area.getWidth(),
+            area.getHeight() - divider_Y - Divider.SIZE,
+            area.getRotation()
+        );
+
         handle_split(area, area_left, area_right);
     }
 
 
     private void split_area_vertically(PlayArea area, float divider_x) {
-        PlayArea area_left = new PlayArea(mainStage, area.getX(), area.getY(), divider_x, area.getHeight());
-        PlayArea area_right = new PlayArea(mainStage, area.getX() + divider_x + Divider.SIZE, area.getY(), area.getWidth() - divider_x - Divider.SIZE, area.getHeight());
+        System.out.println("mark 0");
+        PlayArea area_left = new PlayArea(
+            mainStage,
+            area.getX(),
+            area.getY(),
+            divider_x,
+            area.getHeight(),
+            area.getRotation()
+        );
+
+        PlayArea area_right = new PlayArea(
+            mainStage,
+            area.getX() + divider_x + Divider.SIZE,
+            area.getY(),
+            area.getWidth() - divider_x - Divider.SIZE,
+            area.getHeight(),
+            area.getRotation()
+        );
+
         handle_split(area, area_left, area_right);
     }
 
@@ -296,10 +320,13 @@ public class LevelScreen extends BaseScreen {
     private void handle_split(PlayArea area, PlayArea area_left, PlayArea area_right) {
         area_left.setRotation(area.getRotation());
         validate_area(area_left);
-        validate_area(area_right);
+
         area_right.setRotation(area.getRotation());
+        validate_area(area_right);
+
         transfer_balls(area, area_left, area_right);
         area_clean_up(area);
+
         AssetLoader.dividerMusic.stop();
 
         area_right.size_decrement_amount *= area_shrink;
@@ -371,7 +398,7 @@ public class LevelScreen extends BaseScreen {
         float height = MathUtils.random(2, 5);
         float y_pos = MathUtils.random(min, BaseGame.WORLD_HEIGHT - min - height);
 
-        PlayArea area = new PlayArea(mainStage, x_pos, y_pos, width, height);
+        PlayArea area = new PlayArea(mainStage, x_pos, y_pos, width, height, 0f);
         play_areas.add(area);
 
         mainStage.addAction(Actions.sequence(
@@ -435,6 +462,7 @@ public class LevelScreen extends BaseScreen {
     private void set_game_over() {
         is_game_over = true;
         AssetLoader.game_over_sound.play(BaseGame.soundVolume);
+        GameUtils.stopAllMusic();
 
         // life bar
         /*life_bar.addAction(Actions.fadeOut(1f));

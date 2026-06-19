@@ -33,7 +33,7 @@ public class PlayArea extends BaseActor {
     private Array<Ball> balls;
 
 
-    public PlayArea(Stage stage, float x, float y, float width, float height) {
+    public PlayArea(Stage stage, float x, float y, float width, float height, float rotation) {
         super(x, y, stage);
 
         loadImage("whitePixel");
@@ -41,6 +41,8 @@ public class PlayArea extends BaseActor {
 
         // body
         setSize(width, height);
+        setRotation(rotation);
+        setPosition(x, y);
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
@@ -101,6 +103,7 @@ public class PlayArea extends BaseActor {
             size_increment += delta;
         }
 
+        setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
         for (Ball ball : balls) {
