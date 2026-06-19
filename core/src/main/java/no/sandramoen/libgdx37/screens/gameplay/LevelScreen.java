@@ -40,8 +40,10 @@ public class LevelScreen extends BaseScreen {
     private float life_increment = 0f;
     private float life_frequency = 1f;
 
-    private float ball_speed = 1f; // TODO: make the game harder and harder...
-    private float area_shrink = 1f; // TODO
+    private float ball_speed = 1f;
+    private float area_shrink = 1f;
+    private float divider_speed = 1f;
+    private float num_balls_ratio = 1f;
 
     private TextraLabel score_label;
     /*private BaseProgressBar life_bar;
@@ -77,6 +79,8 @@ public class LevelScreen extends BaseScreen {
         set_vertical_cursor();
 
         initialize_gui();
+
+        // Gdx.input.setCursorCatched(true);
     }
 
 
@@ -227,23 +231,40 @@ public class LevelScreen extends BaseScreen {
 
 
     private void create_dividers(Vector2 world_position, PlayArea area) {
+        Array<Divider> current = new Array<>();
+
+        float speed = Divider.ORIGINAL_SPEED * divider_speed;
         if (is_division_horizontal) {
-            Divider divider_right = new Divider(mainStage, world_position, area, Divider.Going.RIGHT);
-            Divider divider_left = new Divider(mainStage, world_position, area, Divider.Going.LEFT);
+            Divider divider_right = new Divider(mainStage, world_position, area, Divider.Going.RIGHT, speed);
+            Divider divider_left = new Divider(mainStage, world_position, area, Divider.Going.LEFT, speed);
             area.addActor(divider_right);
             area.addActor(divider_left);
             dividers.add(divider_right);
             dividers.add(divider_left);
+            current.add(divider_right);
+            current.add(divider_left);
         } else {
-            Divider divider_up = new Divider(mainStage, world_position, area, Divider.Going.UP);
-            Divider divider_down = new Divider(mainStage, world_position, area, Divider.Going.DOWN);
+            Divider divider_up = new Divider(mainStage, world_position, area, Divider.Going.UP, speed);
+            Divider divider_down = new Divider(mainStage, world_position, area, Divider.Going.DOWN, speed);
             area.addActor(divider_up);
             area.addActor(divider_down);
             dividers.add(divider_up);
             dividers.add(divider_down);
+            current.add(divider_up);
+            current.add(divider_down);
         }
         area.is_being_divided = true;
         AssetLoader.dividerMusic.play();
+
+        mainStage.addAction(Actions.sequence( // divider self destruct failsafe bugfix
+            Actions.delay(5f),
+            Actions.run(() -> {
+                for (Divider d : current) {
+                    d.remove();
+                    dividers.removeValue(d, false);
+                }
+            })
+        ));
     }
 
 
@@ -294,7 +315,6 @@ public class LevelScreen extends BaseScreen {
 
 
     private void split_area_vertically(PlayArea area, float divider_x) {
-        System.out.println("mark 0");
         PlayArea area_left = new PlayArea(
             mainStage,
             area.getX(),
@@ -392,10 +412,10 @@ public class LevelScreen extends BaseScreen {
 
     private void spawn_new_area() {
         float min = 0.5f;
-        float width = MathUtils.random(2, 5);
+        float width = MathUtils.random(2, 8);
         float x_pos = MathUtils.random(min, BaseGame.WORLD_WIDTH - min - width);
 
-        float height = MathUtils.random(2, 5);
+        float height = MathUtils.random(2, 8);
         float y_pos = MathUtils.random(min, BaseGame.WORLD_HEIGHT - min - height);
 
         PlayArea area = new PlayArea(mainStage, x_pos, y_pos, width, height, 0f);
@@ -404,9 +424,19 @@ public class LevelScreen extends BaseScreen {
         mainStage.addAction(Actions.sequence(
             Actions.delay(MathUtils.random(0.5f, 1f)),
             Actions.run(() -> {
-                ball_speed *= 1.01f;
-                System.out.println("levelscreen => ball_speed: " + ball_speed);
-                for (int i = 0; i < MathUtils.random(1, MathUtils.ceil(NUM_BALLS / 2f)); i++) {
+                ball_speed *= 1.02f;
+                area_shrink *= 1.025f;
+                divider_speed *= 0.995f;
+                num_balls_ratio *= 1.1f;
+
+                //System.out.println(play_areas.size / 100f);
+
+                //System.out.println("\nball speed: " + ball_speed + ", area shrink: " + area_shrink + ", divider speed: " + divider_speed + ", num balls: " + num_balls_ratio);
+
+                area.size_decrement_amount *= area_shrink;
+                int num_balls = MathUtils.ceil(area.get_area_size() / 8) + MathUtils.floor(num_balls_ratio);
+                //System.out.println("spawned new are with #" + num_balls + " balls. Ratio is: " + num_balls_ratio);
+                for (int i = 0; i < num_balls; i++) {
                     area.spawn_ball(i, ball_speed);
                 }
             })

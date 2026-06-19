@@ -43,6 +43,7 @@ public class PlayArea extends BaseActor {
         setSize(width, height);
         setRotation(rotation);
         setPosition(x, y);
+
         setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
@@ -143,8 +144,8 @@ public class PlayArea extends BaseActor {
 
     @Override
     public boolean remove() {
-        if (!balls.isEmpty())
-            System.out.println("balls not empty!");
+        /*if (!balls.isEmpty())
+            System.out.println("balls not empty!");*/
 
         setTouchable(Touchable.disabled);
         isCollisionEnabled = false;
@@ -172,6 +173,11 @@ public class PlayArea extends BaseActor {
             ),
             Actions.color(original_color, 0.1f)
         )));
+
+        addAction(Actions.sequence(
+            Actions.delay(1f),
+            Actions.run(() -> is_ready_to_remove = true)
+        ));
     }
 
 
@@ -194,6 +200,11 @@ public class PlayArea extends BaseActor {
             ),
             Actions.color(original_color, 0.1f)
         )));
+
+        addAction(Actions.sequence(
+            Actions.delay(1f),
+            Actions.run(() -> is_ready_to_remove = true)
+        ));
     }
 
 

@@ -12,6 +12,8 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 public class Divider extends BaseActor {
 
     public static final float SIZE = 0.25f;
+    public static final float ORIGINAL_SPEED = 0.01f;
+
     public enum Going {
          UP,
          RIGHT,
@@ -22,10 +24,12 @@ public class Divider extends BaseActor {
     public boolean is_horizontal = false;
 
     private Going going;
-    private float speed = 0.01f;
+    private float speed = ORIGINAL_SPEED;
 
-    public Divider(Stage stage, Vector2 position, PlayArea area, Going going) {
+    public Divider(Stage stage, Vector2 position, PlayArea area, Going going, float speed) {
         super(position.x, position.y, stage);
+
+        this.speed = speed;
 
         loadImage("whitePixel");
         setTouchable(Touchable.disabled);

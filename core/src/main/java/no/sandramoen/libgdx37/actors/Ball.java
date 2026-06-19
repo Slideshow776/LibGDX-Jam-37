@@ -97,7 +97,7 @@ public class Ball extends BaseActor {
 
 
     private void play_bounce_sound() {
-        AssetLoader.ball_bounce.play(BaseGame.soundVolume * 0.5f, 0.6f + speed / 4f, 0f);
+        AssetLoader.ball_bounce.play(BaseGame.soundVolume * 0.25f, 0.6f + speed / 4f, 0f);
         speed += 0.01f;
     }
 
