@@ -1,6 +1,7 @@
 package no.sandramoen.libgdx37.actors;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -41,7 +42,8 @@ public class PreviewLine extends BaseActor {
         Vector2 new_local_position = area.stageToLocalCoordinates(divider_world_position);
         setPosition(
             new_local_position.x - getWidth() * 3f,
-            new_local_position.y - getHeight() * 0.1f
+            new_local_position.y - getHeight() * 3f,
+            Align.center
         );
 
         //setDebug(true);
@@ -74,23 +76,27 @@ public class PreviewLine extends BaseActor {
 
         if (going == Going.UP) {
             setSize(Divider.SIZE, area.getHeight());
+            setX(MathUtils.clamp(getX(), 0, area.getWidth()));
             setY(0);
-            setOrigin(Align.bottom);
+//            setOrigin(Align.bottom);
         } else if (going == Going.RIGHT) {
             is_horizontal = true;
             setSize(area.getWidth(), Divider.SIZE);
             setX(0);
-            setOrigin(Align.left);
+            setY(MathUtils.clamp(getY(), 0, area.getHeight()));
+//            setOrigin(Align.left);
         } else if (going == Going.DOWN) {
             setSize(Divider.SIZE, area.getHeight());
+            setX(MathUtils.clamp(getX(), 0, area.getWidth()));
             setY(0);
-            setOrigin(Align.bottom);
+//            setOrigin(Align.bottom);
         } else if (going == Going.LEFT) {
             is_horizontal = true;
             setSize(area.getWidth(), Divider.SIZE);
             setX(0);
-            setOrigin(Align.left);
+            setY(MathUtils.clamp(getY(), 0, area.getHeight()));
+//            setOrigin(Align.left);
         }
-        //setWorldBounds(area);
+        setWorldBounds(area);
     }
 }

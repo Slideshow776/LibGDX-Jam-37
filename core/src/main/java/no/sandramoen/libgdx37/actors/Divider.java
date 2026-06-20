@@ -36,14 +36,15 @@ public class Divider extends BaseActor {
 
         // body
         setSize(SIZE, SIZE);
-        setOrigin(Align.center);
+//        setOrigin(Align.center);
         setBoundaryRectangle(1f);
 
         Vector2 divider_world_position = localToStageCoordinates(new Vector2());
         Vector2 new_local_position = area.stageToLocalCoordinates(divider_world_position);
         setPosition(
             new_local_position.x - getWidth() * 0.8f,
-            new_local_position.y - getHeight() * 0.2f
+            new_local_position.y - getHeight() * 0.2f,
+            Align.center
         );
 
         //setDebug(true);
@@ -52,18 +53,14 @@ public class Divider extends BaseActor {
         this.going = going;
         if (going == Going.UP) {
             setOrigin(Align.bottom);
-            //setColor(Color.GOLDENROD);
         } else if (going == Going.RIGHT) {
             is_horizontal = true;
             setOrigin(Align.left);
-            //setColor(Color.FOREST);
         } else if (going == Going.DOWN) {
             setOrigin(Align.top);
-            //setColor(Color.BLUE);
         } else if (going == Going.LEFT) {
             is_horizontal = true;
             setOrigin(Align.right);
-            //setColor(Color.OLIVE);
         }
 
         // color
