@@ -111,9 +111,9 @@ public class LevelScreen extends BaseScreen {
             if (area.is_ready_to_remove) {
                 if (area.get_balls().size == 1) {
                     spawn_new_area();
-                    AssetLoader.area_gained.play(BaseGame.soundVolume, MathUtils.random(0.8f, 1.2f), 0f);
+                    AssetLoader.area_gained.play(BaseGame.soundVolume * 0.5f, MathUtils.random(0.8f, 1.2f), 0f);
                 } else {
-                    AssetLoader.area_lost.play(BaseGame.soundVolume, MathUtils.random(0.8f, 1.2f), 0f);
+                    AssetLoader.area_lost.play(BaseGame.soundVolume * 0.5f, MathUtils.random(0.8f, 1.2f), 0f);
                 }
 
                 area.remove_split();
