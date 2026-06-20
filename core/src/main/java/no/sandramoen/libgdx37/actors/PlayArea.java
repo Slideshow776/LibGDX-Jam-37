@@ -27,6 +27,10 @@ public class PlayArea extends BaseActor {
     public float size_decrement_amount = MathUtils.random(0.0125f, 0.05f);
     public PreviewLine previewLine;
 
+    private boolean is_just_entered = false;
+    private float just_entered_increment = 0f;
+    private float just_entered_frequency = 0.25f;
+
     private boolean is_warning_given = false;
     private float size_increment = 0f;
     private float size_frequency = 1f;
@@ -64,29 +68,43 @@ public class PlayArea extends BaseActor {
             })
         ));
 
-        /*addListener(new InputListener() {
+        addListener(new InputListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 super.enter(event, x, y, pointer, fromActor);
 
-                if (previewLine != null)
+                if (previewLine != null) {
+                    is_just_entered = true;
+                    //System.out.println("area w previewline enter");
                     previewLine.addAction(Actions.alpha(previewLine.ORIGINAL_OPACITY, 0.1f));
+                }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 super.exit(event, x, y, pointer, toActor);
 
-                if (previewLine != null)
+                if (previewLine != null && !is_just_entered) {
+                    //System.out.println("area w previewline  exit");
                     previewLine.addAction(Actions.alpha(0f, 0.1f));
+                }
             }
-        });*/
+        });
     }
 
 
     @Override
     public void act(float delta) {
         super.act(delta);
+
+        if (is_just_entered) {
+            just_entered_increment += delta;
+        }
+
+        if (just_entered_increment >= just_entered_frequency) {
+            is_just_entered = false;
+            just_entered_increment = 0f;
+        }
 
         if (size_increment >= size_frequency) {
             size_increment = 0f;
