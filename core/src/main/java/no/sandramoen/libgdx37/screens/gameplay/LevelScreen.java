@@ -89,6 +89,12 @@ public class LevelScreen extends BaseScreen {
         if (is_game_over)
             return;
 
+        // reduce sfx volume based on # play areas.
+        float t = (play_areas.size - 1f) / (50f - 1f);
+        float volume = 0.4f * (1f - t);
+        BaseGame.soundVolume = MathUtils.clamp(volume, 0.1f, 0.4f);
+        //System.out.println(BaseGame.soundVolume + ", " + play_areas.size);
+
         if (!GameUtils.isAnyMusicPlaying())
             play_random_music();
 
@@ -261,6 +267,7 @@ public class LevelScreen extends BaseScreen {
             current.add(divider_down);
         }
         area.is_being_divided = true;
+        AssetLoader.dividerMusic.setVolume(BaseGame.soundVolume);
         AssetLoader.dividerMusic.play();
 
         mainStage.addAction(Actions.sequence( // divider self destruct failsafe bugfix
