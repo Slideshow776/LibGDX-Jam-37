@@ -64,7 +64,7 @@ public class PlayArea extends BaseActor {
             })
         ));
 
-        addListener(new InputListener() {
+        /*addListener(new InputListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 super.enter(event, x, y, pointer, fromActor);
@@ -80,7 +80,7 @@ public class PlayArea extends BaseActor {
                 if (previewLine != null)
                     previewLine.addAction(Actions.alpha(0f, 0.1f));
             }
-        });
+        });*/
     }
 
 

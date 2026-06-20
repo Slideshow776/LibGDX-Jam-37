@@ -12,7 +12,7 @@ import no.sandramoen.libgdx37.utils.GameUtils;
 public class Divider extends BaseActor {
 
     public static final float SIZE = 0.25f;
-    public static final float ORIGINAL_SPEED = 0.01f;
+    public static final float ORIGINAL_SPEED = 16f;
 
     public enum Going {
          UP,
@@ -88,11 +88,11 @@ public class Divider extends BaseActor {
 
         if (is_growing) {
             if (going == Going.UP || going == Going.DOWN) {
-                setScaleY(getScaleY() + speed);
+                setScaleY(getScaleY() + speed * delta);
             } else if (going == Going.RIGHT || going == Going.LEFT) {
-                setScaleX(getScaleX() + speed);
+                setScaleX(getScaleX() + speed * delta);
             }
-        } else {
+        }else {
             isCollisionEnabled = false;
         }
     }

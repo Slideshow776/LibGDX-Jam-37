@@ -171,6 +171,13 @@ public class LevelScreen extends BaseScreen {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.Q) {
             Gdx.app.exit();
+        } else if (keycode == Input.Keys.SPACE) {
+            is_division_horizontal = !is_division_horizontal;
+            if (is_division_horizontal)
+                set_horizontal_cursor();
+            else
+                set_vertical_cursor();
+            mouseMoved(Gdx.input.getX(), Gdx.input.getY());
         }
         return super.keyDown(keycode);
     }
@@ -435,6 +442,7 @@ public class LevelScreen extends BaseScreen {
 
                 area.size_decrement_amount *= area_shrink;
                 int num_balls = MathUtils.ceil(area.get_area_size() / 8) + MathUtils.floor(num_balls_ratio);
+                num_balls = Math.max(2, num_balls);
                 //System.out.println("spawned new are with #" + num_balls + " balls. Ratio is: " + num_balls_ratio);
                 for (int i = 0; i < num_balls; i++) {
                     area.spawn_ball(i, ball_speed);
